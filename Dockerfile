@@ -26,8 +26,8 @@ RUN \
  apk --no-cache update -qq && apk --no-cache upgrade -qq && apk --no-cache fix -qq && \
  apk add --quiet --no-cache \
         ca-certificates \
-		fuse \
-		fuse-dev \
+        fuse \
+        fuse-dev \
         logrotate \
         shadow \
         bash \
