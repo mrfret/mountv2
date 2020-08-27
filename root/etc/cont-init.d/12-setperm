@@ -1,0 +1,25 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+# Copyright (c) 2020, MrDoob
+# All rights reserved.
+## function source
+function log() {
+echo "[Mount] ${1}"
+}
+log "-> Setting Permissions || start <-"
+chown -hR abc:abc  \
+         /config \
+         /mnt
+chmod a+x /app/functions/functions.sh \
+         /app/update-alpine/update-alpine.sh \
+         /app/mergerfs.sh
+chown -hR abc:abc /app/update-alpine/update-alpine.sh \
+         /app/mergerfs.sh
+chown -R abc:abc /run \
+         /var/lib/nginx \
+         /var/log/nginx \
+         /var/www
+log "-> Setting Permissions || done <-"
+    chown -hR abc:abc /mnt/unionfs
+
+#EOF

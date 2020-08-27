@@ -1,0 +1,19 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+# Copyright (c) 2020, MrDoob
+# All rights reserved.
+function log() {
+echo "[Mount] ${1}"
+}
+function update() {
+cron=/crontab.con
+if [ ! -f ${cron} ]; then
+   log "-> update packages || start <-"
+   apk --no-cache update -qq && apk --no-cache upgrade -qq && apk --no-cache fix -qq
+   echo "@daily /app/update-alpine/update-alpine.sh" > /crontab.conf
+   crontab /crontab.conf
+   rm -rf /var/cache/apk/*
+   log "-> update packages || done <-"
+fi
+}
+update
