@@ -18,7 +18,7 @@ ENV TZ="Europe/Berlin" \
     DISCORD_WEBHOOK_URL=null \
     DISCORD_ICON_OVERRIDE="https://i.imgur.com/MZYwA1I.png" \
     DISCORD_NAME_OVERRIDE="RCLONE" \
-    DISCORD_EMBED_TITEL="Upload Completed"
+    DISCORD_EMBED_TITEL="Mount Message"
 
 RUN \
  echo "**** install build packages ****" && \
