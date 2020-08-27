@@ -12,8 +12,10 @@ chown -hR abc:abc  \
          /mnt
 chmod a+x /app/functions/functions.sh \
          /app/update-alpine/update-alpine.sh \
-         /app/mergerfs.sh
+         /app/mergerfs.sh \
+         /app/startupp-mounts.sh
 chown -hR abc:abc /app/update-alpine/update-alpine.sh \
+         /app/startupp-mounts.sh \
          /app/mergerfs.sh
 chown -R abc:abc /run \
          /var/lib/nginx \
