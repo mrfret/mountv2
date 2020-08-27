@@ -21,5 +21,5 @@ while true; do
     $mount_command
     MERGERFS_PID=$(pgrep mergerfs)
   fi
-  sleep 10s
+  sleep 10
 done
