@@ -27,7 +27,7 @@ RUN \
  apk add --quiet --no-cache \
         ca-certificates \
 		fuse \
-		fuser-dev \
+		fuse-dev \
         logrotate \
         shadow \
         bash \
