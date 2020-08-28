@@ -88,7 +88,7 @@ rclone mount $i: /mnt/drive-$i \\
     --buffer-size=${BUFFER_SIZE} --fast-list \\
     --drive-chunk-size=128M --drive-use-trash=false \\
     --drive-server-side-across-configs=true \\
-    --drive-stop-on-upload-limit & \n " >> ${SMOUNT}/$i-mount.sh
+    --drive-stop-on-upload-limit & \n" >> ${SMOUNT}/$i-mount.sh
          chmod 775 ${SMOUNT}/$i-mount.sh && chown abc:abc ${SMOUNT}/$i-mount.sh
          echo "-> Mount file created for $i <-"
          #bash ${SMOUNT}/$i-mount.sh
