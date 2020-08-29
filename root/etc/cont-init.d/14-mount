@@ -65,7 +65,7 @@ for i in ${mounts[@]}; do
   #log; log CREATE MOUNT COMMAND $i; log
   ddaylic=$(date +"%Y")
   dday=$(date)
-  log -e "#!/usr/bin/with-contenv bash
+  echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${dday}, MrDoob ##
 # rclone mount for $i over-shell-exec-command ##
