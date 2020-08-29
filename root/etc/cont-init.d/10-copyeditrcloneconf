@@ -16,6 +16,7 @@ fi
 function rclonestart() {
 rclone_docker=/config/rclone-docker.conf
 rclone_base=/config/rclone.conf
+if [ -f ${rclone_base} ]; then
 log "-> Copying rclone.conf <-"
     rm -f /config/rclone-docker.conf
     cp /config/rclone.conf /config/rclone-docker.conf
@@ -27,6 +28,7 @@ log "-> Make needed edits to rclone-docker.conf <-"
     sed -i '/pgunion/{n;N;d;}' ${rclone_docker}
     sed -i '/pgunion/d' ${rclone_docker}
 log "-> rclone_docker.conf edits done <-"
+fi
 }
 function rcloneinstall() {
 rclone_bin=/usr/bin/rclone
