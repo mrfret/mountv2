@@ -10,21 +10,24 @@ log "-> Setting Permissions || start <-"
 chown -hR abc:abc  \
           /config \
           /mnt
+
 chmod a+x /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
           /app/mergerfs.sh \
           /app/startupp-mounts.sh \
           /app/checkmounts.sh
-chown -hR abc:abc \
-          /app/update-alpine/update-alpine.sh \
+
+chown -hR abc:abc /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
           /app/mergerfs.sh \
           /app/startupp-mounts.sh \
           /app/checkmounts.sh
+
 chown -R abc:abc /run \
           /var/lib/nginx \
           /var/log/nginx \
           /var/www
+
 log "-> Setting Permissions || done <-"
     chown -hR abc:abc /mnt/unionfs
 
