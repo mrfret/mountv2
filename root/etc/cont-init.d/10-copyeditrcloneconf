@@ -10,7 +10,6 @@ if [ ! -f "/config/rclone.conf" ]; then
    sleep 60
    exit 0
 fi
-
 if [ -f "/config/rclone.conf" ]; then
     log "-> Copying rclone.conf <-"
         rm -f /config/rclone-docker.conf

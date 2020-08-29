@@ -1,5 +1,8 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
+function log() {
+echo "[Mount] ${1}"
+}
 ## function source start
 IFS=$'\n'
 filter="$1"
@@ -25,4 +28,3 @@ log "-> update packages || start <-"
     apk --no-cache update -qq && apk --no-cache upgrade -qq && apk --no-cache fix -qq
     rm -rf /var/cache/apk/*
 log "-> update packages || done <-"
-
