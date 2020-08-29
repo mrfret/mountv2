@@ -5,7 +5,7 @@
 # cleanup remotes based of rclone.conf file
 # only clean remotes thats inside the rclone.conf
 function log() {
-    echo "[Mount] ${1}"
+    echo "[Mount] ${1} ${2}"
 }
 ## function source start
 IFS=$'\n'
@@ -16,20 +16,22 @@ mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter
 ## function source end
 while true; do
  for i in ${mounts[@]}; do
-  command_running=$(ls -l /mnt/drive-$i/ | awk '$1 == "total" {print $2}')
+  command_running=$(ls /mnt/drive-$i/ | wc -l)
   if [ "$command_running" == '0' ]; then
-     log second check for running $i;
-     command_exist_pid=/config/pid/$i
+     log "-> second check of running mount [Mount] <-" $i;
+     command_exist_pid=/config/scripts/$i.mounted
      if [  -f "$command_exist_pid" ]; then
          command_test_pid=$(cat /config/pid/$i)
          if [ "$command_test_pid" != $i ]; then
-          log Mount down $i;
+          log " -> Mount down <- [Mount]" $i;
          fi
      else
-         log $i not mounted or failed;
+         log $i " mounted or failed <- [Mount] ";
      fi
+   else
+        log $i "-> mounted <- [Mount]";
   fi
  done
- sleep 3
+ sleep 5
 done
 #>EOF<#
