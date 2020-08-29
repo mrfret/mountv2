@@ -75,6 +75,7 @@ rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
+    --allow-non-empty \\
     --uid=1000 --gid=1000 --umask=002 \\
     --allow-other --timeout=1h --tpslimit=8 \\
     --drive-skip-gdocs --user-agent=${UAGENT} \\
