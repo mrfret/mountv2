@@ -5,42 +5,32 @@
 function log() {
 echo "[Mount] ${1}"
 }
-function rclonetest() {
-rclone_base=/config/rclone.conf
-if [ ! -f ${rclone_base} ]; then
+if [ ! -f "/config/rclone.conf" ]; then
    log "-->> [ WARNING ] no rclone.conf file found [ WARNING ] <<--"
    sleep 60
    exit 0
 fi
-}
-function rclonestart() {
-rclone_docker=/config/rclone-docker.conf
-rclone_base=/config/rclone.conf
-if [ -f ${rclone_base} ]; then
-log "-> Copying rclone.conf <-"
-    rm -f /config/rclone-docker.conf
-    cp /config/rclone.conf /config/rclone-docker.conf
-log "-> Make needed edits to rclone-docker.conf <-"
-    sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" ${rclone_docker}
-    sed -i "s#/opt/appdata/uploader/#/config/keys/#g" ${rclone_docker}
-    sed -i "s#/opt/appdata/services/uploader/keys/#/config/keys/#g" ${rclone_docker}
-    sed -i "s#/opt/uploader/keys/#/config/keys/#g" ${rclone_docker}
-    sed -i '/pgunion/{n;N;d;}' ${rclone_docker}
-    sed -i '/pgunion/d' ${rclone_docker}
-log "-> rclone_docker.conf edits done <-"
+
+if [ -f "/config/rclone.conf" ]; then
+    log "-> Copying rclone.conf <-"
+        rm -f /config/rclone-docker.conf
+        cp /config/rclone.conf /config/rclone-docker.conf
+    log "-> Make needed edits to rclone-docker.conf <-"
+        sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" /config/rclone-docker.conf
+        sed -i "s#/opt/appdata/uploader/#/config/keys/#g" /config/rclone-docker.conf
+        sed -i "s#/opt/appdata/services/uploader/keys/#/config/keys/#g" /config/rclone-docker.conf
+        sed -i "s#/opt/uploader/keys/#/config/keys/#g" /config/rclone-docker.conf
+        sed -i '/pgunion/{n;N;d;}' /config/rclone-docker.conf
+        sed -i '/pgunion/d' /config/rclone-docker.conf
+    log "-> rclone_docker.conf edits done <-"
 fi
-}
-function rcloneinstall() {
+
 rclone_bin=/usr/bin/rclone
 if [ ! -f ${rclone_bin} ]; then
-  log "-> install rclone || start <-"
+   log "-> install rclone || start <-"
       wget https://downloads.rclone.org/rclone-current-linux-amd64.zip -O rclone.zip >/dev/null 2>&1 && \
       unzip -qq rclone.zip && rm rclone.zip && \
       mv rclone*/rclone /usr/bin && rm -rf rclone* 
-  log "-> install rclone || done <-"
+   log "-> install rclone || done <-"
 fi
-}
-###
-rclonetest
-rclonestart
-rcloneinstall
+#<EOF>#

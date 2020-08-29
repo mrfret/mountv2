@@ -7,7 +7,15 @@
 function log() {
     echo "[Mount] ${1} ${2}"
 }
+function logfailed() {
+    echo "[Mount] [FAILED] ${1} ${2}"
+}
+
 ## function source start
+DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
+DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
+DISCORD="/config/discord/failed.discord"
 IFS=$'\n'
 filter="$1"
 config=/config/rclone.conf
@@ -20,16 +28,21 @@ while true; do
   if [ "$command_running" == '0' ]; then
      log "-> second check of running mount [Mount] <-" $i;
      command_exist_pid=/config/scripts/$i.mounted
-     if [  -f "$command_exist_pid" ]; then
+     if [ -f "$command_exist_pid" ]; then
          command_test_pid=$(cat /config/pid/$i)
          if [ "$command_test_pid" != $i ]; then
-          log " -> Mount down <- [Mount]" $i;
-         fi
+            if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
+               echo $i "[ WARNING] Mounts FAILED or DOWN [ WARNING ]" >"${DISCORD}"
+               msg_content=$(cat "${DISCORD}")
+               curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
+            else
+               logfailed $i " not mounted or failed <- [Mount] ";
+            fi
      else
-         log $i " mounted or failed <- [Mount] ";
+         logfailed $i " not mounted or failed <- [Mount] ";
      fi
-   else
-        log $i "-> mounted <- [Mount]";
+  else
+     log $i "-> mounted <- [Mount]";
   fi
  done
  sleep 5
