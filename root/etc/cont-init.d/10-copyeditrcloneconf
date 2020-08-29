@@ -10,7 +10,7 @@ rclone_base=/config/rclone.conf
 if [ ! -f ${rclone_base} ]; then
    log "-->> [ WARNING ] no rclone.conf file found [ WARNING ] <<--"
    sleep 60
-   exit 1
+   exit 0
 fi
 }
 function rclonestart() {
