@@ -29,18 +29,19 @@ while true; do
      log "-> second check of running mount [Mount] <-" $i;
      command_exist_pid=/config/scripts/$i.mounted
      if [ -f "$command_exist_pid" ]; then
-          command_exist_pid=/config/scripts/$i.mounted
-         if [ ! -f "$command_exist_pid" ]; then
+         MERGERFS_PID=$(pgrep mergerfs)
+         log "MERGERFS_PID: ${MERGERFS_PID}"
+         if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
             DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
             DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
             DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
             DISCORD="/config/discord/failed.discord"
             if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-               echo $i "[ WARNING] Mounts FAILED or DOWN [ WARNING ]" >"${DISCORD}"
+               echo $i "[ WARNING] MERGERFS FAILED [ WARNING ]" >"${DISCORD}"
                msg_content=$(cat "${DISCORD}")
                curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
             else
-               logfailed $i " not mounted or failed <- [Mount] ";
+               logfailed $i " MERGERFS WORKS <- [Mount] ";
             fi
          fi
      else
