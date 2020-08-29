@@ -3,6 +3,10 @@
 
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
-
-echo "Shutting Down mergerfs Mount"
-fusermount -u /unionfs
+function log() {
+    echo "[Mount] ${1}"
+}
+log "Shutting Down mergerfs Mount"
+fusermount -uz /mnt/unionfs
+log "Shutting Down Mount"
+fusermount -uz /mnt/unionfs

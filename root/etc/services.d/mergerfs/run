@@ -5,10 +5,12 @@
 # All rights reserved.
 
 # shellcheck disable=SC2086
-
+function log() {
+    echo "[Mount] ${1}"
+}
 umask 022
 mount_command="/app/mergerfs.sh"
-sleep 5s
+sleep 5
 
-echo "-> Starting mergerfs <-"
+log "-> Starting mergerfs <-"
 exec $mount_command

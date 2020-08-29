@@ -21,13 +21,11 @@ if [[ "$(command -v fusermount | wc -l)" != "1" ]]; then
 fi
 
 log "-> stoping mounts <-"
-stop_mounts="/bin/fusermount -uz $i "
-remove_empty_folder="/usr/bin/find /mnt/drive-* -type d -empty -delete"
 for i in ${mounts[@]}; do
     log "-> Stop Mounting $i <-"
-    $stop_mounts
+    fusermount -uz $i
 	sleep 2
-	$remove_empty_folder
+	find /mnt/drive-* -type d -empty -delete
 	sleep 2
 done
 sleep 10

@@ -45,27 +45,27 @@ fi
 ## RUN MOUNT ##
 for i in ${mounts[@]}; do
   if [ ! -d "/mnt/drive-$i" ]; then     
-     #echo; echo CREATE EMPTY DIRECTORIES $i; echo
+     #log; log CREATE EMPTY DIRECTORIES $i; log
      mkdir -p /mnt/drive-$i
      chown -hR abc:abc /mnt/drive-$i
      chmod -R 775 /mnt/drive-$i
   fi
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
-    #echo; echo UNMOUNTING $i; echo
+    #log; log UNMOUNTING $i; log
     fusermount -uzq /mnt/drive-$i
   fi
   if [ -f "${SMOUNT}/$i-mount.sh" ]; then
-     #echo; echo REMOVE Script $i; echo
+     #log; log REMOVE Script $i; log
      rm -f "${SMOUNT}/$i-mount.sh"
   fi
-  #echo; echo CREATE $i LOGFOLDER; echo
-  mkdir -p /logs && mkdir -p /logs/$i/
-  chmod -R 775 /logs/ && chown -hR abc:abc /logs/
-  touch /logs/$i/rclone-$i.log
-  #echo; echo CREATE MOUNT COMMAND $i; echo
+  #log; log CREATE $i LOGFOLDER; log
+  mkdir -p /config/logs/ && mkdir -p /logs/$i/
+  chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
+  touch /config/logs/$i/rclone-$i.log
+  #log; log CREATE MOUNT COMMAND $i; log
   ddaylic=$(date +"%Y")
   dday=$(date)
-  echo -e "#!/usr/bin/with-contenv bash
+  log -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${dday}, MrDoob ##
 # rclone mount for $i over-shell-exec-command ##
@@ -74,7 +74,7 @@ for i in ${mounts[@]}; do
 ##\n
 rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
-    --log-file=/logs/$i/rclone-$i.log \\
+    --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --uid=1000 --gid=1000 --umask=002 \\
     --allow-other --timeout=1h --tpslimit=8 \\
@@ -90,7 +90,7 @@ rclone mount $i: /mnt/drive-$i \\
     --drive-server-side-across-configs=true \\
     --drive-stop-on-upload-limit & \n" >> ${SMOUNT}/$i-mount.sh
          chmod 775 ${SMOUNT}/$i-mount.sh && chown abc:abc ${SMOUNT}/$i-mount.sh
-         echo "-> Mount file created for $i <-"
+         log "-> Mount file created for $i <-"
          #bash ${SMOUNT}/$i-mount.sh
 done
 #EOF#

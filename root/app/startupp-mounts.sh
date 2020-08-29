@@ -19,8 +19,8 @@ log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 for i in ${mounts[@]}; do
     log "-> Mounting $i <-"
-    startup_mounts="/bin/bash ${SMOUNT}/$i-mount.sh 1>/dev/null 2>&1"
-    $startup_mounts
+    bash ${SMOUNT}/$i-mount.sh
 	sleep 1
+    log $i ${SMOUNT}/$i.mounted
 done
-sleep 10
+
