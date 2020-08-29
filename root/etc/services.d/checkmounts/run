@@ -5,10 +5,12 @@
 # All rights reserved.
 
 # shellcheck disable=SC2086
-
+function log() {
+    echo "[Mount] ${1}"
+}
 umask 022
 check_mounts="/app/checkmounts.sh"
 sleep 5
 
-echo "-> Starting Check Mounts <-"
+log "-> Starting Check Mounts <-"
 exec $check_mounts
