@@ -17,8 +17,8 @@ function rclonestart() {
 rclone_docker=/config/rclone-docker.conf
 rclone_base=/config/rclone.conf
 log "-> Copying rclone.conf <-"
-    rm -f ${rclone_docker}
-    cp ${rclone_base} ${rclone_docker}
+    rm -f /config/rclone-docker.conf
+    cp /config/rclone.conf /config/rclone-docker.conf
 log "-> Make needed edits to rclone-docker.conf <-"
     sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" ${rclone_docker}
     sed -i "s#/opt/appdata/uploader/#/config/keys/#g" ${rclone_docker}
