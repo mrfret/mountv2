@@ -35,11 +35,17 @@ POLL_INTERVAL=${POLL_INTERVAL:-5m}
 LOGLEVEL=${LOGLEVEL:-INFO}
 UAGENT=${UAGENT:-somerandstring}
 SMOUNT=/config/scripts
+SDOWN=/mnt/downloads
 
 if [ ! -d ${SMOUNT} ]; then
    mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 else
    chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
+fi
+if [ ! -d ${SDOWN} ]; then
+   mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
+else
+   chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 fi
 
 ## RUN MOUNT ##
@@ -89,8 +95,7 @@ rclone mount $i: /mnt/drive-$i \\
     --drive-chunk-size=128M --drive-use-trash=false \\
     --drive-server-side-across-configs=true \\
     --drive-stop-on-upload-limit & \n" >> ${SMOUNT}/$i-mount.sh
-         chmod 775 ${SMOUNT}/$i-mount.sh && chown abc:abc ${SMOUNT}/$i-mount.sh
-         log "-> Mount file created for $i <-"
-         #bash ${SMOUNT}/$i-mount.sh
+    chmod 775 ${SMOUNT}/$i-mount.sh && chown abc:abc ${SMOUNT}/$i-mount.sh
+    log "-> Mount file created for $i <-"
 done
 #EOF#
