@@ -10,7 +10,6 @@ function log() {
 function logfailed() {
     echo "[Mount] [FAILED] ${1} ${2}"
 }
-
 ## function source start
 DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
 DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
