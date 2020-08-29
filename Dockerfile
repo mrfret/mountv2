@@ -1,5 +1,4 @@
 ######################################################
-######################################################
 # All rights reserved.                               #
 # mod from MrDoob                                    #
 # es wird keinem erlaubt                             #
@@ -8,7 +7,7 @@
 ######################################################
 ########   ich scheiß auf alle ihr hajos   ###########
 ######################################################
-FROM rclone/rclone
+FROM alpine:latest
 ARG BUILD_DATE="unknown"
 ARG COMMIT_AUTHOR="unknown"
 LABEL maintainer=${COMMIT_AUTHOR}
@@ -67,8 +66,10 @@ RUN \
 
 VOLUME [ "/mnt/unionfs" ]
 VOLUME [ "/config" ]
+VOLUME [ "/mnt/downloads" ]
 
 RUN chown 911:911 /mnt/unionfs && \
+    chown 911:911 /mnt/downloads && \
     chown 911:911 /config && \
     mkdir -p /var/www/html && \
     addgroup -g 911 abc && \
