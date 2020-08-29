@@ -17,9 +17,9 @@ mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter
 
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
-startup_mounts="/bin/bash ${SMOUNT}/$i-mount.sh 1>/dev/null 2>&1"
 for i in ${mounts[@]}; do
     log "-> Mounting $i <-"
+    startup_mounts="/bin/bash ${SMOUNT}/$i-mount.sh 1>/dev/null 2>&1"
     $startup_mounts
 	sleep 1
 done
