@@ -5,6 +5,7 @@
 function log() {
 echo "[Mount] ${1}"
 }
+function mergerfs_install() {
 mergerfs=$(command -v mergerfs | wc -l)
 if [ "${mergerfs}" != "1" ]; then
     log "-> Enabled MergerFS <-"
@@ -15,5 +16,8 @@ if [ "${mergerfs}" != "1" ]; then
       rm -rf /var/cache/apk/*
     log "-> configure mergerfs || done <-"
 fi
+}
 
- 
+mergerfs_install
+
+#>EOF<#
