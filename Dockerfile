@@ -8,7 +8,7 @@
 ######################################################
 ########   ich scheiß auf alle ihr hajos   ###########
 ######################################################
-FROM rclone:latest
+FROM rclone/rclone
 ARG BUILD_DATE="unknown"
 ARG COMMIT_AUTHOR="unknown"
 LABEL maintainer=${COMMIT_AUTHOR} \
