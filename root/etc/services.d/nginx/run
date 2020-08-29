@@ -8,5 +8,5 @@
 
 umask 022
 nginx_command="nginx"
-log "-> Starting nginx <-"
+echo "-> Starting nginx <-"
 exec s6-setuidgid abc $nginx_command

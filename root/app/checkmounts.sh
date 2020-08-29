@@ -30,6 +30,10 @@ while true; do
      if [ -f "$command_exist_pid" ]; then
          command_test_pid=$(cat /config/pid/$i)
          if [ "$command_test_pid" != $i ]; then
+            DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+            DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
+            DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
+            DISCORD="/config/discord/failed.discord"
             if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
                echo $i "[ WARNING] Mounts FAILED or DOWN [ WARNING ]" >"${DISCORD}"
                msg_content=$(cat "${DISCORD}")
@@ -37,6 +41,7 @@ while true; do
             else
                logfailed $i " not mounted or failed <- [Mount] ";
             fi
+         fi
      else
          logfailed $i " not mounted or failed <- [Mount] ";
      fi
