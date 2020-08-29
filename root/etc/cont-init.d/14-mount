@@ -61,7 +61,6 @@ for i in ${mounts[@]}; do
   #log; log CREATE $i LOGFOLDER; log
   mkdir -p /config/logs/ && mkdir -p /logs/$i/
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
-  touch /config/logs/$i/rclone-$i.log
   #log; log CREATE MOUNT COMMAND $i; log
   ddaylic=$(date +"%Y")
   dday=$(date)
@@ -74,7 +73,7 @@ for i in ${mounts[@]}; do
 ##\n
 rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
-    --log-file=/config/logs/$i/rclone-$i.log \\
+    --log-file=/config/logs/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --uid=1000 --gid=1000 --umask=002 \\
     --allow-other --timeout=1h --tpslimit=8 \\
