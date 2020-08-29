@@ -11,8 +11,7 @@
 FROM rclone/rclone
 ARG BUILD_DATE="unknown"
 ARG COMMIT_AUTHOR="unknown"
-LABEL maintainer=${COMMIT_AUTHOR} \
-      org.label-schema.build-date=${BUILD_DATE}
+LABEL maintainer=${COMMIT_AUTHOR}
 
 ENV TZ="Europe/Berlin" \
     DISCORD_WEBHOOK_URL=null \
