@@ -14,12 +14,14 @@ chown -hR abc:abc  \
 chmod a+x /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
           /app/startupp-mounts.sh \
-          /app/checkmounts.sh
+          /app/checkmounts.sh \
+          /app/mountsize/mountsize.sh
 
 chown -hR abc:abc /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
           /app/startupp-mounts.sh \
-          /app/checkmounts.sh
+          /app/checkmounts.sh \
+          /app/mountsize/mountsize.sh
 
 chown -R abc:abc /run \
           /var/lib/nginx \
