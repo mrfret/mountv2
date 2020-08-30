@@ -1,6 +1,6 @@
 ######################################################
 # All rights reserved.                               #
-# mod from MrDoob                                    #
+# started from Zero from MrDoob                      #
 # es wird keinem erlaubt                             #
 # es in seinem Projekt einzubauen                    #
 # ohne meine Erlaubnis / Anfange oder sonstiges      # 
@@ -9,7 +9,7 @@
 ######################################################
 FROM alpine:latest
 ARG BUILD_DATE="unknown"
-ARG COMMIT_AUTHOR="unknown"
+ARG COMMIT_AUTHOR="MrDoob"
 LABEL maintainer=${COMMIT_AUTHOR}
 
 ENV TZ="Europe/Berlin" \

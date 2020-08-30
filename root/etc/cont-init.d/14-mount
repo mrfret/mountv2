@@ -5,18 +5,10 @@
 function log() {
 echo "[Mount] ${1}"
 }
-#!/usr/bin/with-contenv bash
-# shellcheck shell=bash
-# Copyright (c) 2020, MrDoob
-# All rights reserved.
-# cleanup remotes based of rclone.conf file
-# only clean remotes thats inside the rclone.conf 
-
 ## function source start
 IFS=$'\n'
 filter="$1"
 config=/config/rclone.conf
-#rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 
@@ -32,11 +24,13 @@ RC_ADDR=${RC_ADDR:-0.0.0.0:25975}
 RC_USER=${RC_USER:-user}
 RC_PASS=${RC_PASS:-xxx}
 POLL_INTERVAL=${POLL_INTERVAL:-5m}
-LOGLEVEL=${LOGLEVEL:-INFO}
+LOGLEVEL=${LOGLEVEL:-ERROR}
 UAGENT=${UAGENT:-somerandstring}
 SMOUNT=/config/scripts
 SDOWN=/mnt/downloads
+SUNION=/mnt/unionfs
 
+##### FOLDER START #####
 if [ ! -d ${SMOUNT} ]; then
    mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 else
@@ -47,27 +41,28 @@ if [ ! -d ${SDOWN} ]; then
 else
    chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 fi
+if [ ! -d ${SUNION} ]; then
+   mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
+else
+   chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
+fi
+##### FOLDER END #####
 
 ## RUN MOUNT ##
 for i in ${mounts[@]}; do
   if [ ! -d "/mnt/drive-$i" ]; then     
-     #log; log CREATE EMPTY DIRECTORIES $i; log
      mkdir -p /mnt/drive-$i
      chown -hR abc:abc /mnt/drive-$i
      chmod -R 775 /mnt/drive-$i
   fi
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
-    #log; log UNMOUNTING $i; log
     fusermount -uzq /mnt/drive-$i
   fi
   if [ -f "${SMOUNT}/$i-mount.sh" ]; then
-     #log; log REMOVE Script $i; log
      rm -f "${SMOUNT}/$i-mount.sh"
   fi
-  #log; log CREATE $i LOGFOLDER; log
-  mkdir -p /config/logs/ && mkdir -p /logs/$i/
+  mkdir -p /config/logs/ && mkdir -p /config/logs/$i/
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
-  #log; log CREATE MOUNT COMMAND $i; log
   ddaylic=$(date +"%Y")
   dday=$(date)
   echo -e "#!/usr/bin/with-contenv bash
@@ -96,6 +91,6 @@ rclone mount $i: /mnt/drive-$i \\
     --drive-server-side-across-configs=true \\
     --drive-stop-on-upload-limit & \n" >> ${SMOUNT}/$i-mount.sh
     chmod 775 ${SMOUNT}/$i-mount.sh && chown abc:abc ${SMOUNT}/$i-mount.sh
-    log "-> Mount file created for $i <-"
+    log "-->> Mount file created for $i <<--"
 done
 #EOF#
