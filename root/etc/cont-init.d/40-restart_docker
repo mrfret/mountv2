@@ -1,0 +1,14 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+# Copyright (c) 2020, MrDoob
+# All rights reserved.
+function log() {
+echo "[Mount] ${1}"
+}
+log "-> restart dockers || done <-"
+   apk add docker --quiet --no-cache --force-refresh --no-progress 
+   docker restart plex sonarr radarr sonarr sonarr4k radarr4k radarrhdr sonarrhdr emby >> /dev/null
+   sleep 5
+   apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress 
+log "-> restart dockers || done <-"
+#>EOF<#
