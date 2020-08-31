@@ -11,7 +11,6 @@ log " -->    INSTALL DOCKER      <---"
 log "                                "
 log " -------------------------------"
 apk add docker --quiet --no-cache --force-refresh --no-progress
-fi
 sleep 3
 docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
 # docker restart plex sonarr radarr sonarr sonarr4k radarr4k radarrhdr sonarrhdr emby >> /dev/null
