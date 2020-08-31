@@ -9,10 +9,11 @@ cron=/tmp/crontab.conf
 if [ -f ${cron} ]; then
    rm -f ${cron}
    log "-> update packages || start <-" 
-   apk --no-cache update -qq && apk --no-cache upgrade -qq && apk --no-cache fix -qq
-  echo -e "## update alpine weekly
-@weekly bash /app/update-alpine/update-alpine.sh \
-## update drive size daily
+   apk --no-cache update --quiet && apk --no-cache upgrade --quiet && apk --no-cache fix --quiet
+   apk del --quiet --clean-protected --no-progress
+  echo -e "## update alpine weekly \n
+@weekly bash /app/update-alpine/update-alpine.sh \n
+## update drive size daily \n
 @daily bash /app/mountsize/mountsize.sh" >> /tmp/crontab.conf
    crontab /tmp/crontab.conf
    rm -rf /var/cache/apk/*
