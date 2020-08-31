@@ -1,38 +1,35 @@
-!/usr/bin/with-contenv bash
+#!/usr/bin/with-contenv bash
 # shellcheck shell=bash
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
 function log() {
-echo "[Mount] ${1}"
+echo "[DOCKER] ${1}"
 }
-# Regular color(s)
-NORMAL="\033[0;39m"
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-BLUE='\033[0;34m'
-echo -e "
-   $GREEN
-   -> restart dockers || done <-
-   $NORMAL"
-   if [[ $(command -v docker | wc -l) == 0 ]]; then
-       echo -e $RED "INSTALL DOCKER $NORMAL"
-       apk add docker --quiet --no-cache --force-refresh --no-progress
-       exit 0
-   else
-       echo -e " $BLUE --> docker installed <-- $NORMAL"
-   fi
-   sleep 3
-   docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
-   # docker restart plex sonarr radarr sonarr sonarr4k radarr4k radarrhdr sonarrhdr emby >> /dev/null
-   containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
-   for container in $containers;do
-       echo -e "$GREEN -->> Restart $container <<-- $NORMAL"
-       docker=$(docker restart $container)
-   done
-   sleep 5
-   if [[ $(command -v docker | wc -l) != 0 ]]; then
-       apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress
-       echo -e " $BLUE -->> restart dockers || done \n
-	   purg docker install <<-- $NORMAL"
-   fi
+log " -------------------------------"
+log "                                "
+log " -->    INSTALL DOCKER      <---"
+log "                                "
+log " -------------------------------"
+apk add docker --quiet --no-cache --force-refresh --no-progress
+fi
+sleep 3
+docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
+# docker restart plex sonarr radarr sonarr sonarr4k radarr4k radarrhdr sonarrhdr emby >> /dev/null
+containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
+for container in $containers;do
+    log " -->> Restart $container <<-- "
+    log ""
+    docker=$(docker restart $container)
+    log ""
+done
+sleep 5
+apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress
+log " -------------------------------"
+log "                                "
+log " -->  restart dockers done  <<--"
+log "                                "
+log " -->  purge docker install  <<--"
+log "                                "
+log " -------------------------------"
+
 #>EOF<#
