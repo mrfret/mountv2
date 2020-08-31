@@ -11,25 +11,20 @@ log " -->    INSTALL DOCKER      <---"
 log "                                "
 log " -------------------------------"
 apk add docker --quiet --no-cache --force-refresh --no-progress
-fi
 sleep 3
 docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
 # docker restart plex sonarr radarr sonarr sonarr4k radarr4k radarrhdr sonarrhdr emby >> /dev/null
 containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
-for container in $containers;do
-    log " -->> Restart $container <<-- "
-    log ""
-    docker=$(docker restart $container)
-    log ""
+for container in $containers; do
+    log " -->> Restarting $container <<-- "
+    docker restart $container
+    log " -->> Restarted $container <<-- "
 done
 sleep 5
 apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress
 log " -------------------------------"
-log "                                "
 log " -->  restart dockers done  <<--"
-log "                                "
 log " -->  purge docker install  <<--"
-log "                                "
 log " -------------------------------"
 
 #>EOF<#
