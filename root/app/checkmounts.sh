@@ -48,7 +48,7 @@ while true; do
          logfailed $i " not mounted or failed <- [Mount] ";
      fi
   else
-     log $i "-> is mounted and works <- [Mount]";
+     echo; log $i "-> is mounted and works <- [Mount]";
   fi
  done
  sleep 5
