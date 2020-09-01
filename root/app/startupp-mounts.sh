@@ -6,8 +6,8 @@
 function log() {
     echo "[Mount] ${1}"
 }
-PUID=${PUID:-911}
-PGID=${PGID:-911}
+PUID=${PUID}
+PGID=${PGID}
 IFS=$'\n'
 filter="$1"
 config=/config/rclone-docker.conf
@@ -27,14 +27,14 @@ done
 
 sleep 10
 
-/usr/bin/mergerfs -o nonempty,uid=${PUID:-911},gid=${PGID:-911},sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
+/usr/bin/mergerfs -o nonempty,uid=${PUID},gid=${PGID},sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
 
 MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 
 while true; do
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     /usr/bin/mergerfs -o nonempty,uid=${PUID:-911},gid=${PGID:-911},sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
+     /usr/bin/mergerfs -o nonempty,uid=${PUID},gid=${PGID},sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
   fi
   sleep 10s
