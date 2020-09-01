@@ -10,9 +10,9 @@ function logdocker() {
 echo "[DOCKER] ${1}"
 }
 function startupdocker() {
-SERVICE=(pgrep -x mergerfs)
+SERVICE=$(pgrep mergerfs | wc -l)
 LSFOLDER=$(ls /mnt/unionfs/ | wc -l)
-if [[ -z ${SERVICE} && ${LSFOLDER} != '0' ]]; then
+if [[ ${SERVICE} != '0' && ${LSFOLDER} -gt '1' ]]; then
    restart_container
 else
    wait_for
