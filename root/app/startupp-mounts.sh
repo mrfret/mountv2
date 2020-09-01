@@ -12,7 +12,7 @@ echo "[DOCKER] ${1}"
 function startupdocker() {
 SERVICE=$(pgrep mergerfs | wc -l)
 LSFOLDER=$(ls /mnt/unionfs/ | wc -l)
-if [[ ${SERVICE} != '0' && ${LSFOLDER} -gt '1' ]]; then
+if [[ ${SERVICE} -ne "0" && ${LSFOLDER} -ne "0" ]]; then
    restart_container
 else
    wait_for
