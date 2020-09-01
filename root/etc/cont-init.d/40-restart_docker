@@ -17,7 +17,7 @@ docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/p
 containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
 for container in $containers; do
     log " -->> Restarting $container <<-- "
-    docker restart $container
+    docker restart $container >> /dev/null
     log " -->> Restarted $container <<-- "
 done
 sleep 5
