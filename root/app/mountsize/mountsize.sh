@@ -7,10 +7,10 @@
 IFS=$'\n'
 filter=$1
 ## function source end
-config=/config/rclone-docker.conf
+config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 for i in ${mounts[@]}; do
-  echo; echo For $i | tee -a /config/logs/rclone-$i.log
-  rclone size $i: --config=${config} --fast-list | tee -a /config/logs/mountsize-$i.log
+  echo; echo For $i | tee -a /config/logs/$i/rclone-$i.log
+  rclone size $i: --config=${config} --fast-list | tee -a /config/logs/$i/mountsize-$i.log
 done

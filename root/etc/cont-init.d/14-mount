@@ -8,7 +8,7 @@ echo "[Mount] ${1}"
 ## function source start
 IFS=$'\n'
 filter="$1"
-config=/config/rclone.conf
+config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 
@@ -74,7 +74,7 @@ for i in ${mounts[@]}; do
 ##\n
 rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
-    --log-file=/config/logs/rclone-$i.log \\
+    --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --allow-non-empty \\
     --uid=1000 --gid=1000 --umask=002 \\

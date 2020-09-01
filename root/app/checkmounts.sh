@@ -17,7 +17,7 @@ DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
 DISCORD="/config/discord/failed.discord"
 IFS=$'\n'
 filter="$1"
-config=/config/rclone.conf
+config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
