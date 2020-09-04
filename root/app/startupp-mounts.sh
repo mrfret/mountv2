@@ -77,27 +77,26 @@ chmod 775 "${1}"
 function fmod() {
 chown -hR abc:abc "${1}"
 }
-function checkmountstatus() {
+checkmountstatus() {
+SCHECK=/config/check
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 
 for i in ${mounts[@]}; do
- if [[ $(ps aux | grep '$i:' | head -n 1 | wc -l) != 0 ]]; then
-    truncate -s 0 ${SCHECK}/$i.mounted
-    echo "last check $(date)" > ${SCHECK}/$i.mounted
-  else
+PID=$(pgrep -f $i)
+if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
     fusermount -uz /mnt/drive-$i >> /dev/null
     fusermount -uz /mnt/unionfs >> /dev/null
     log "-> REMounting $i <-"
-    fcreate ${SLOG}; fcreate ${SCHECK}; fcreate ${SMOUNT}
-    fown ${SLOG}; fown ${SCHECK}; fown ${SMOUNT}
-	fown ${SCHECK}; fown ${SCHECK}; fown ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
     sleep 1
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
+  else
+    truncate -s 20 ${SCHECK}/$i.mounted
+    echo "last check $(date)" > ${SCHECK}/$i.mounted
   fi
 done
 }
@@ -112,7 +111,6 @@ for i in ${mounts[@]}; do
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 10
-checkmountstatus
 /usr/bin/mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
@@ -135,8 +133,9 @@ while true; do
      /usr/bin/mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
+	 checkmountstatus
   fi
   checkmountstatus
+  echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
   sleep 10
 done
-#####EOF#####
