@@ -98,6 +98,7 @@ for i in ${mounts[@]}; do
     sleep 1
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
+  fi
 done
 }
 
