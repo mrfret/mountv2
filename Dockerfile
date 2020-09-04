@@ -20,14 +20,12 @@ ENV TZ="Europe/Berlin" \
 COPY root/ /
 
 RUN \
- apk --no-cache --no-progress update -qq && apk --no-cache --no-progress upgrade -qq && apk --no-cache --no-progress fix -qq
-
-RUN \
  echo "**** install build packages ****" && \
- apk --quiet --no-cache --no-progress add php7 php7-fpm php7-opcache php7-mysqli php7-json php7-openssl php7-curl \
-    php7-zlib php7-xml php7-phar php7-intl php7-dom php7-xmlreader php7-ctype php7-session \
-    php7-mbstring php7-gd nginx supervisor curl ca-certificates libattr fuse fuse-dev logrotate \
-    shadow bash bc findutils coreutils openssl nginx libxml2-utils tzdata openntpd grep tar
+ apk --quiet --no-cache --no-progress add \
+        ca-certificates libattr fuse fuse-dev logrotate shadow bash bc findutils coreutils openssl \
+        php7 php7-fpm  php7-mysqli php7-json php7-openssl php7-curl php7-zlib php7-xml php7-phar php7-dom \
+        php7-xmlreader php7-ctype php7-mbstring php7-gd curl nginx libxml2-utils tzdata openntpd grep tar && \
+        rm -rf /var/cache/apk/*
 
 RUN \
   echo "**** Install s6-overlay ****" && \ 
