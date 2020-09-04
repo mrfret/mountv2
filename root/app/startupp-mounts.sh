@@ -19,9 +19,9 @@ else
 fi
 }
 function wait_for() {
-    logdocker " -> wait for mounted drives <- "
-sleep 5
-startupdocker
+  logdocker " -> wait for mounted drives <- "
+  sleep 5
+  startupdocker
 }
 function restart_container() {
     logdocker " -------------------------------"
@@ -49,8 +49,16 @@ logdocker " -->  restart dockers done  <<--"
 logdocker " -->  purge docker install  <<--"
 logdocker " -------------------------------"
 }
-PUID=${PUID}
-PGID=${PGID}
+DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
+DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
+if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
+   echo $i " Starting $(date) <- [Mount]" >"${DISCORD}"
+   msg_content=$(cat "${DISCORD}")
+   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
+else
+   log $i " Starting <- [Mount] ";
+fi
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
@@ -69,6 +77,30 @@ chmod 775 "${1}"
 function fmod() {
 chown -hR abc:abc "${1}"
 }
+function checkmountstatus() {
+IFS=$'\n'
+filter="$1"
+config=/config/rclone/rclone-docker.conf
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+
+for i in ${mounts[@]}; do
+ if [[ $(ps aux | grep '$i:' | head -n 1 | wc -l) != 0 ]]; then
+    truncate -s 0 ${SCHECK}/$i.mounted
+    echo "last check $(date)" > ${SCHECK}/$i.mounted
+  else
+    fusermount -uz /mnt/drive-$i >> /dev/null
+    fusermount -uz /mnt/unionfs >> /dev/null
+    log "-> REMounting $i <-"
+    fcreate ${SLOG}; fcreate ${SCHECK}; fcreate ${SMOUNT}
+    fown ${SLOG}; fown ${SCHECK}; fown ${SMOUNT}
+	fown ${SCHECK}; fown ${SCHECK}; fown ${SCHECK}
+    bash ${SMOUNT}/$i-mount.sh
+    sleep 1
+    echo "remounted since $(date)" > ${SCHECK}/$i.mounted
+    startupdocker
+done
+}
+
 for i in ${mounts[@]}; do
     log "-> Mounting $i <-"
     fcreate ${SLOG}; fcreate ${SCHECK}; fcreate ${SMOUNT}
@@ -76,9 +108,10 @@ for i in ${mounts[@]}; do
     fown ${SCHECK}; fown ${SCHECK}; fown ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
     sleep 1
-    echo "mounted" > ${SCHECK}/$i.mounted
+    echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 10
+checkmountstatus
 /usr/bin/mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
@@ -102,6 +135,7 @@ while true; do
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
   fi
-  sleep 10s
+  checkmountstatus
+  sleep 10
 done
 #####EOF#####
