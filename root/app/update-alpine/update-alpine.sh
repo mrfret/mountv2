@@ -28,3 +28,7 @@ log "-> update packages || start <-"
     apk --no-cache update -qq && apk --no-cache upgrade -qq && apk --no-cache fix -qq
     rm -rf /var/cache/apk/*
 log "-> update packages || done <-"
+
+log "-> cleanup log folders || start <-""
+    truncate -s 0 /config/logs/*/**.log
+log "-> cleanup log folders || done <-"
