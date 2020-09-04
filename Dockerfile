@@ -64,10 +64,6 @@ RUN \
   rm /tmp/s6-overlay-amd64.tar.gz >/dev/null 2>&1 && \
   echo "**** Installed s6-overlay `cat /etc/S6_RELEASE` ****"
 
-RUN \
-  echo "**** Install composer ****" && \ 
-  curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/bin --filename=composer
-
 VOLUME [ "/mnt/unionfs" ]
 VOLUME [ "/config" ]
 VOLUME [ "/mnt/downloads" ]
