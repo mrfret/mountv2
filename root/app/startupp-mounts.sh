@@ -85,7 +85,7 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 
 for i in ${mounts[@]}; do
-PID=$(pgrep -f $i)
+PID=$(pgrep -f $i | head -n 1)
 if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
     fusermount -uz /mnt/drive-$i >> /dev/null
     fusermount -uz /mnt/unionfs >> /dev/null
