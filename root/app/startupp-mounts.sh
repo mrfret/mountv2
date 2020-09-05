@@ -95,7 +95,7 @@ if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
   else
-    truncate -s 20 ${SCHECK}/$i.mounted
+    truncate -s 2 ${SCHECK}/$i.mounted
     echo "last check $(date)" > ${SCHECK}/$i.mounted
   fi
 done
