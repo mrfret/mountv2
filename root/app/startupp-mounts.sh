@@ -111,7 +111,7 @@ for i in ${mounts[@]}; do
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 10
-/usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-[:alpha:]=NC\*:/mnt/downloads=RW /mnt/unionfs
+/usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-*\*=NC:/mnt/downloads=RW /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
@@ -132,7 +132,7 @@ MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 while true; do
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     /usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-[:alpha:]=NC\*:/mnt/downloads=RW /mnt/unionfs
+     /usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-*\*=NC:/mnt/downloads=RW /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
      checkmountstatus
