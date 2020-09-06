@@ -63,7 +63,7 @@ for i in ${mounts[@]}; do
   fi
   mkdir -p /config/logs/ && mkdir -p /config/logs/$i/
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
-  truncate -s 0 /config/logs/*/**.log
+  truncate -s 0 /config/logs/*/**.log >> /dev/null
   ddaylic=$(date +"%Y")
   dday=$(date)
   echo -e "#!/usr/bin/with-contenv bash

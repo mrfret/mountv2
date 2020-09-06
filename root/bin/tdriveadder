@@ -1,0 +1,97 @@
+#!/usr/bin/env bash
+###########################################
+# some code come from 88lex :-)           #
+# sasync https://github.com/88lex/sasync/ #
+# greetings and many thanks               #
+###########################################
+## add encrypt tdrive support             #
+## add rclone obscure password creater    #
+## add unencrypt tdrive support           #
+###########################################
+conf=/config/rclone.conf
+
+add () {
+echo -e "Add new Tdrive^ (y/n)";read -i n yes_yn
+if [ "${yes_yn,,}" != "y" ];then
+  echo -e "exit \n"
+  exit
+fi
+
+echo -e "Add new Unecrypted-Tdrive (y/n)";read -i n yes_yn
+if [ "${yes_yn,,}" != "y" ];then
+  echo -e "switch to encrypted Tdrive \n"
+  addecrypted
+else
+  echo -e "switch to encrypted Tdrive \n"
+  addunecrypted  
+fi
+}
+
+addunecrypted () {
+echo -e "Add new Tdrive (y/n)";read -i n yes_yn
+if [ "${yes_yn,,}" != "y" ];then
+  echo -e "exit \n"
+  exit
+fi
+echo -e ""
+echo -e "    add name of drive ( sample tdrive2 )";echo;read -i n name
+echo -e ""
+echo -e "    type team-drive id \nteamdriveID can be copied from your browser url when at root of your teamdrive. \nTypically looks like 0APabc123def4" ;echo;read -i $td
+echo -e ""
+echo -e "    to use serverside actions true or false";echo;read -i n serverside
+echo -e ""
+echo -e ""
+
+echo -e "##add over shell##
+[$name]
+type = drive
+client_id = `rclone config show --config=${conf} $rem|grep client_id | awk -F' = ' '{print $2}' | head -n 1`
+client_secret = `rclone config show --config=${conf} $rem|grep client_secret | awk -F' = ' '{print $2}' | head -n 1`
+server_side_across_configs = $serverside
+scope = drive
+token = `rclone config show --config=${conf} $rem|grep token | awk -F' = ' '{print $2}' | head -n 1`
+team_drive = $td" >> ${conf}
+}
+
+addecrypted () {
+echo -e "Add new Cryted Tdrive (y/n)";echo; read -i yes_yn
+if [ "${yes_yn,,}" != "y" ];then
+  echo -e "exit \n"
+  exit
+fi
+
+echo -e ""
+echo -e "    add name of drive ( sample tdrive2 )";echo;read -i n name
+echo -e ""
+echo -e "    type team-drive id \nteamdriveID can be copied from your browser url when at root of your teamdrive. \nTypically looks like 0APabc123def4" ;echo;read -i $td
+echo -e ""
+echo -e "    to use serverside actions true or false";echo;read -i n serverside
+echo -e ""
+echo -e "    Password for encrypted tdrive ";echo;read -i -n PASSWORD
+echo -e ""
+echo -e "    SALT Password for encrypted tdrive ";echo;read -i -n SALT
+
+echo -e "##add over shell##
+[$name]
+type = drive
+client_id = `rclone config show --config=${conf} $rem|grep client_id | awk -F' = ' '{print $2}' | head -n 1`
+client_secret = `rclone config show --config=${conf} $rem|grep client_secret | awk -F' = ' '{print $2}' | head -n 1`
+server_side_across_configs = $serverside
+scope = drive
+token = `rclone config show --config=${conf} $rem|grep token | awk -F' = ' '{print $2}' | head -n 1`
+team_drive = $td
+
+[tcrypt-$name]
+type = crypt
+remote = $name:/encrypt
+filename_encryption = standard
+directory_name_encryption = true
+password = `rclone obscure $PASSWORD`
+password2 = `rclone obscure $SALT`" >> ${conf}
+}
+###########################
+rc_update () {
+add
+}
+
+rc_update $1

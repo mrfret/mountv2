@@ -85,7 +85,7 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 
 for i in ${mounts[@]}; do
-PID=$(pgrep -f $i)
+PID=$(pgrep -f $i | head -n 1)
 if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
     fusermount -uz /mnt/drive-$i >> /dev/null
     fusermount -uz /mnt/unionfs >> /dev/null
@@ -95,7 +95,7 @@ if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
   else
-    truncate -s 20 ${SCHECK}/$i.mounted
+    truncate -s 2 ${SCHECK}/$i.mounted
     echo "last check $(date)" > ${SCHECK}/$i.mounted
   fi
 done
@@ -111,7 +111,7 @@ for i in ${mounts[@]}; do
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 10
-/usr/bin/mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
+/usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-*\*=NC:/mnt/downloads=RW /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
@@ -126,14 +126,16 @@ else
    sleep 30
 fi
 #### MERGERFS ####
+## notiz nutze pro mount =NC: command
+##################
 MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 while true; do
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     /usr/bin/mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/d*\* /mnt/unionfs
+     /usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-*\*=NC:/mnt/downloads=RW /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
-	 checkmountstatus
+     checkmountstatus
   fi
   checkmountstatus
   echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted

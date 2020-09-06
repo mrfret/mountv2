@@ -30,5 +30,4 @@ chown -R abc:abc /run \
 
 log "-> Setting Permissions || done <-"
     chown -hR abc:abc /mnt/unionfs
-
 #EOF
