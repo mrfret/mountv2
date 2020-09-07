@@ -26,12 +26,8 @@ if [ -f "/config/rclone.conf" ]; then
         sed -i '/pgunion/d' /config/rclone/rclone-docker.conf
     log "-> rclone_docker.conf edits done <-"
 fi
-rclone_bin=/usr/bin/rclone
-if [ ! -f ${rclone_bin} ]; then
-   log "-> install rclone || start <-"
-      wget https://downloads.rclone.org/rclone-current-linux-amd64.zip -O rclone.zip >/dev/null 2>&1 && \
-      unzip -qq rclone.zip && rm rclone.zip && \
-      mv rclone*/rclone /usr/bin && rm -rf rclone* 
-   log "-> install rclone || done <-"
-fi
+log "-> update rclone || start <-"
+    apk add unzip --quiet
+    curl --no-progress-meter https://rclone.org/install.sh | bash -s beta >/dev/null 2>&1
+log "-> update rclone || done <
 #<EOF>#
