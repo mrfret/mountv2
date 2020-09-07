@@ -6,9 +6,9 @@ echo "[Mount] ${1}"
 ## function source start
 IFS=$'\n'
 filter="$1"
-config=/config/rclone-docker.conf
+config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+mapfile -t mounts < <(eval rclone listremotes --config=${RCLONEDOCKER} | grep "$filter" | sed -e 's/tcrypt://g' | sed -e 's/gcrypt://g' | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 for i in ${mounts[@]}; do
   rclone dedupe skip $i: --config=${config} --drive-use-trash=false --no-traverse --transfers=50 --user-agent="SomeLegitUserAgent" 
@@ -29,6 +29,6 @@ log "-> update packages || start <-"
     rm -rf /var/cache/apk/*
 log "-> update packages || done <-"
 
-log "-> cleanup log folders || start <-""
+log "-> cleanup log folders || start <-"
     truncate -s 0 /config/logs/*/**.log
 log "-> cleanup log folders || done <-"

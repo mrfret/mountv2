@@ -29,7 +29,7 @@ function restart_container() {
     logdocker " -------------------------------"
     apk add docker --quiet --no-cache --force-refresh --no-progress
 sleep 3
-docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
+docker ps -a -q --format '{{.Names}}' | sort -r | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
 #### LIST SOME DOCKER TO RESTART ####
 containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
 for container in $containers; do
@@ -49,21 +49,23 @@ logdocker " -->  restart dockers done  <<--"
 logdocker " -->  purge docker install  <<--"
 logdocker " -------------------------------"
 }
-DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
-DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
-DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
-if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-   echo $i " Starting $(date) <- [Mount]" >"${DISCORD}"
-   msg_content=$(cat "${DISCORD}")
-   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
-else
-   log $i " Starting <- [Mount] ";
-fi
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 #### function source end
+function discord_send() {
+DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
+DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
+if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
+   log " Starting $i Mount  $(date) <- [Mount]" >"${DISCORD}"
+   msg_content=$(cat "${DISCORD}")
+   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
+else
+   log " Starting $i Mount  $(date) <- [Mount]"
+fi
+}
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SCHECK=/config/check
@@ -83,7 +85,6 @@ IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
-
 for i in ${mounts[@]}; do
 PID=$(pgrep -f $i | head -n 1)
 if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
@@ -102,7 +103,7 @@ done
 }
 
 for i in ${mounts[@]}; do
-    log "-> Mounting $i <-"
+    discord_send
     fcreate ${SLOG}; fcreate ${SCHECK}; fcreate ${SMOUNT}
     fown ${SLOG}; fown ${SCHECK}; fown ${SMOUNT}
     fown ${SCHECK}; fown ${SCHECK}; fown ${SCHECK}
