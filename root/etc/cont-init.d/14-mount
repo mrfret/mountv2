@@ -18,11 +18,13 @@ VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-675h}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
 VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-10G}
-BUFFER_SIZE=${BUFFER_SIZE:-48M}
+BUFFER_SIZE=${BUFFER_SIZE:-64M}
 RC_ENABLED=${RC_ENABLED:-false}
 RC_ADDR=${RC_ADDR:-0.0.0.0:25975}
 RC_USER=${RC_USER:-user}
 RC_PASS=${RC_PASS:-xxx}
+PUID=${PUID:-911}
+PGID=${PGID:-911}
 POLL_INTERVAL=${POLL_INTERVAL:-5m}
 LOGLEVEL=${LOGLEVEL:-ERROR}
 UAGENT=${UAGENT:-somerandstring}
@@ -62,6 +64,7 @@ for i in ${mounts[@]}; do
      rm -f "${SMOUNT}/$i-mount.sh"
   fi
   mkdir -p /config/logs/ && mkdir -p /config/logs/$i/
+  touch /config/logs/$i/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/*/**.log >> /dev/null
   ddaylic=$(date +"%Y")
@@ -77,20 +80,16 @@ rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
-    --allow-non-empty \\
-    --uid=1000 --gid=1000 --umask=002 \\
-    --allow-other --timeout=1h --tpslimit=8 \\
-    --drive-skip-gdocs --user-agent=${UAGENT} \\
+    --uid=${PUID} --gid=${PGID} --umask=002 \\
+    --allow-other --timeout=1h \\
+    --tpslimit=8 --user-agent=${UAGENT} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --buffer-size=${BUFFER_SIZE} --fast-list \\
-    --drive-chunk-size=128M --drive-use-trash=false \\
-    --drive-server-side-across-configs=true \\
-    --drive-stop-on-upload-limit & \n" >> ${SMOUNT}/$i-mount.sh
+    --buffer-size=${BUFFER_SIZE} & \n" >> ${SMOUNT}/$i-mount.sh
     chmod 775 ${SMOUNT}/$i-mount.sh && chown abc:abc ${SMOUNT}/$i-mount.sh
     log "-->> Mount file created for $i <<--"
 done
