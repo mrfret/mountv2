@@ -79,17 +79,16 @@ chmod 775 "${1}"
 function fmod() {
 chown -hR abc:abc "${1}"
 }
-checkmountstatus() {
+function checkmountstatus() {
 SCHECK=/config/check
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 for i in ${mounts[@]}; do
-PID=$(pgrep -f $i | head -n 1)
-if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
-    fusermount -uz /mnt/drive-$i >> /dev/null
-    fusermount -uz /mnt/unionfs >> /dev/null
+if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) ]; then
+    fusermount -uz /mnt/drive-$i >>/dev/null
+    fusermount -uz /mnt/unionfs >>/dev/null
     log "-> REMounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
     sleep 1

@@ -8,9 +8,15 @@ IFS=$'\n'
 filter=$1
 ## function source end
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+mapfile -t mountscrypt < <(eval rclone listremotes --config=${config} | grep "$filter" | grep "$filter" | sed -e 's/tdrive//g' | sed -e 's/gdrive//g' | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 ## function source end
-for i in ${mounts[@]}; do
-  echo; echo For $i | tee -a /config/logs/$i/rclone-$i.log
-  rclone size $i: --config=${config} --fast-list | tee -a /config/logs/$i/mountsize-$i.log
+for i in ${mountscrypt[@]}; do
+  echo -e "$(date)\
+  $(rclone size $i: --config=${config} --fast-list --user-agent="SomeLegitUserAgent")"  > /config/logs/$i/mountsize-$i.log
 done
+mapfile -t mountsuncrypt < <(eval rclone listremotes --config=${config} | grep "$filter" | grep "$filter" | sed -e 's/tcrypt//g' | sed -e 's/gcrypt//g' | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
+for i in ${mountsuncrypt[@]}; do
+  echo -e "$(date)\
+  $(rclone size $i: --config=${config} --fast-list --exclude="**encrypt**" --user-agent="SomeLegitUserAgent")"  > /config/logs/$i/mountsize-$i.log
+done
+#EOF#
