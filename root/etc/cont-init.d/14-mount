@@ -56,6 +56,7 @@ for i in ${mounts[@]}; do
   touch /config/logs/$i/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/*/**.log >> /dev/null
+  echo -n "$i=NC:" >>/tmp/rclone-mount.file
   ddaylic=$(date +"%Y")
   dday=$(date)
   echo -e "#!/usr/bin/with-contenv bash
@@ -69,7 +70,7 @@ rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
-    --uid=${PUID} --gid=${PGID} --umask=002 \\
+    --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty --timeout=1h \\
     --cache-dir=/tmp/rclone_cache/$i \\
     --size-only --poll-interval=${POLL_INTERVAL} \\
