@@ -5,19 +5,13 @@
 function log() {
 echo "[Mount] ${1}"
 }
-function mergerfs_install() {
-mergerfs=$(command -v mergerfs | wc -l)
-if [ "${mergerfs}" != "1" ]; then
-    log "-> Enabled MergerFS <-"
-    log "-> configure mergerfs || start <-"
-      apk --no-cache add --quiet --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing mergerfs
-      apk --no-cache update -qq && apk --no-cache upgrade -qq && apk --no-cache fix -qq
-      sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
-      rm -rf /var/cache/apk/*
-    log "-> configure mergerfs || done <-"
-fi
-}
-
-mergerfs_install
-
+log "-> Install MergerFS <-"
+log "-> Configure MergerFS || start <-"
+apk --no-cache add --quiet --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing mergerfs
+apk --no-cache add --quiet --update fuse fuse-dev
+apk --no-cache update --quite && apk --no-cache upgrade --quite && apk --no-cache fix --quite
+log "-> configure mergerfs || start <-"
+sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
+rm -rf /var/cache/apk/*
+log "-> Configure Mergerfs || done <-"
 #>EOF<#
