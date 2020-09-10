@@ -112,6 +112,8 @@ for i in ${mounts[@]}; do
 done
 sleep 10
 UFSPATH=$(cat /tmp/rclone-mount.file)
+echo ${UFSPATH}
+sleep 30
 /usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
