@@ -19,13 +19,8 @@ VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
 VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-100G}
 BUFFER_SIZE=${BUFFER_SIZE:-64M}
-RC_ENABLED=${RC_ENABLED:-false}
-RC_ADDR=${RC_ADDR:-0.0.0.0:25975}
-RC_USER=${RC_USER:-user}
-RC_PASS=${RC_PASS:-xxx}
 PUID=${PUID:-911}
 PGID=${PGID:-911}
-POLL_INTERVAL=${POLL_INTERVAL:-5m}
 LOGLEVEL=${LOGLEVEL:-ERROR}
 UAGENT=${UAGENT:-somerandstring}
 ##### FOLDER START #####
@@ -74,7 +69,6 @@ rclone mount $i: /mnt/drive-$i \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty --timeout=1h \\
     --cache-dir=/tmp/rclone_cache/$i \\
-    --size-only --poll-interval=${POLL_INTERVAL} \\
     --tpslimit=8 --user-agent=${UAGENT} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
@@ -87,7 +81,4 @@ rclone mount $i: /mnt/drive-$i \\
     log "-->> Mount file created for $i <<--"
 done
 
-#for i in ${mounts[@]}; do
-#      echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
-#done </tmp/rclone-mount.file.tmp
 #EOF#
