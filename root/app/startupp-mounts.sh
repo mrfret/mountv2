@@ -128,9 +128,6 @@ else
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    sleep 30
 fi
-#### MERGERFS ####
-## notiz nutze pro mount =NC: command
-##################
 MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 while true; do
