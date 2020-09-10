@@ -58,6 +58,7 @@ for i in ${mounts[@]}; do
   truncate -s 0 /config/logs/*/**.log >> /dev/null
   ddaylic=$(date +"%Y")
   dday=$(date)
+  echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${dday}, MrDoob ##
@@ -85,7 +86,7 @@ rclone mount $i: /mnt/drive-$i \\
     log "-->> Mount file created for $i <<--"
 done
 
-for i in ${mounts[@]}; do
-      echo -n "$p=NC:" >>/tmp/rclone-mount.file
-done </tmp/rclone-mount.file.tmp
+#for i in ${mounts[@]}; do
+#      echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
+#done </tmp/rclone-mount.file.tmp
 #EOF#
