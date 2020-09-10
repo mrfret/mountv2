@@ -29,7 +29,7 @@ function restart_container() {
     logdocker " -------------------------------"
     apk add docker --quiet --no-cache --force-refresh --no-progress
 sleep 3
-docker ps -a -q --format '{{.Names}}' | sort | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
+docker ps -a -q --format '{{.Names}}' | sort -r | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
 #### LIST SOME DOCKER TO RESTART ####
 containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
 for container in $containers; do
@@ -49,21 +49,23 @@ logdocker " -->  restart dockers done  <<--"
 logdocker " -->  purge docker install  <<--"
 logdocker " -------------------------------"
 }
-DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
-DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
-DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
-if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-   echo $i " Starting $(date) <- [Mount]" >"${DISCORD}"
-   msg_content=$(cat "${DISCORD}")
-   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
-else
-   log $i " Starting <- [Mount] ";
-fi
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 #### function source end
+function discord_send() {
+DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
+DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
+DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
+if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
+   log " Starting $i Mount  $(date) <- [Mount]" >"${DISCORD}"
+   msg_content=$(cat "${DISCORD}")
+   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
+else
+   log " Starting $i Mount  $(date) <- [Mount]"
+fi
+}
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SCHECK=/config/check
@@ -77,18 +79,16 @@ chmod 775 "${1}"
 function fmod() {
 chown -hR abc:abc "${1}"
 }
-checkmountstatus() {
+function checkmountstatus() {
 SCHECK=/config/check
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
-
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 for i in ${mounts[@]}; do
-PID=$(pgrep -f $i | head -n 1)
-if [ -z "${PID}" ] || [ ! -e /proc/${PID} ]; then
-    fusermount -uz /mnt/drive-$i >> /dev/null
-    fusermount -uz /mnt/unionfs >> /dev/null
+if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) ]; then
+    fusermount -uz /mnt/drive-$i >>/dev/null
+    fusermount -uz /mnt/unionfs >>/dev/null
     log "-> REMounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
     sleep 1
@@ -102,7 +102,7 @@ done
 }
 
 for i in ${mounts[@]}; do
-    log "-> Mounting $i <-"
+    discord_send
     fcreate ${SLOG}; fcreate ${SCHECK}; fcreate ${SMOUNT}
     fown ${SLOG}; fown ${SCHECK}; fown ${SMOUNT}
     fown ${SCHECK}; fown ${SCHECK}; fown ${SCHECK}
@@ -111,7 +111,10 @@ for i in ${mounts[@]}; do
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 10
-/usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-*\*=NC:/mnt/downloads=RW /mnt/unionfs
+UFSPATH=$(cat /tmp/rclone-mount.file)
+log "read ${UFSPATH} to see the remote binded mounts"
+
+/usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
@@ -132,7 +135,7 @@ MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 while true; do
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     /usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs /mnt/drive-*\*=NC:/mnt/downloads=RW /mnt/unionfs
+     /usr/bin/mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
      checkmountstatus
