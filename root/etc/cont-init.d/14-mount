@@ -56,7 +56,6 @@ for i in ${mounts[@]}; do
   touch /config/logs/$i/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/*/**.log >> /dev/null
-  echo -n "$i=NC:" >>/tmp/rclone-mount.file
   ddaylic=$(date +"%Y")
   dday=$(date)
   echo -e "#!/usr/bin/with-contenv bash
@@ -85,4 +84,8 @@ rclone mount $i: /mnt/drive-$i \\
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
     log "-->> Mount file created for $i <<--"
 done
+
+for i in ${mounts[@]}; do
+      echo -n "$p=NC:" >>/tmp/rclone-mount.file
+done </tmp/rclone-mount.file.tmp
 #EOF#
