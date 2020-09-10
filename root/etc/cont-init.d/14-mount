@@ -58,6 +58,7 @@ for i in ${mounts[@]}; do
   truncate -s 0 /config/logs/*/**.log >> /dev/null
   ddaylic=$(date +"%Y")
   dday=$(date)
+  touch /tmp/rclone-mount.file
   echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
