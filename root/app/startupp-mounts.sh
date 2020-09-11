@@ -59,7 +59,7 @@ DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
 DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
 DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
 if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-   log " Starting $i Mount  $(date) <- [Mount]" >"${DISCORD}"
+   echo "[Mount] -> Starting $i Mount  $(date) <- [Mount]" >"${DISCORD}"
    msg_content=$(cat "${DISCORD}")
    curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
 else
