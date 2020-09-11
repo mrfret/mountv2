@@ -4,6 +4,7 @@
 # All rights reserved.
 # 
 ## function source start
+while true; do
 IFS=$'\n'
 filter=$1
 ## function source end
@@ -19,4 +20,6 @@ for i in ${mountsuncrypt[@]}; do
   echo -e "$(date)\
   $(rclone size $i: --config=${config} --fast-list --exclude="**encrypt**" --user-agent="SomeLegitUserAgent")"  > /config/logs/$i/mountsize-$i.log
 done
-#EOF#
+
+sleep $(($(date -f - +%s- <<< $'tomorrow 00:30\nnow')0))
+done
