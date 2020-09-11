@@ -7,11 +7,16 @@ echo "[Mount] ${1}"
 }
 log "-> Install MergerFS <-"
 log "-> Configure MergerFS || start <-"
-apk --no-cache add --quiet --update --repository http://dl-cdn.alpinelinux.org/alpine/edge/testing mergerfs
-apk --quiet --no-cache --no-progress add fuse fuse-dev
-apk --no-cache update --quiet && apk --no-cache upgrade --quiet && apk --no-cache fix --quiet
+
+apk --quiet --no-cache --no-progress add \
+     mergerfs fuse libattr libgcc libstdc++ \
+     libtool gettext-dev attr-dev
+apk --no-cache update --quiet
+apk --no-cache upgrade --quiet
+apk --no-cache fix --quiet
+rm -rf /var/cache/apk/*
+
 log "-> configure mergerfs || start <-"
 sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
-rm -rf /var/cache/apk/*
 log "-> Configure Mergerfs || done <-"
 #>EOF<#
