@@ -5,18 +5,28 @@
 function log() {
 echo "[Mount] ${1}"
 }
-log "-> Install MergerFS <-"
-log "-> Configure MergerFS || start <-"
-
+#curl -sX GET "https://api.github.com/repos/trapexit/mergerfs/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]' > /tmp/tmp mergerfs && \
 apk --quiet --no-cache --no-progress add \
-     mergerfs fuse libattr libgcc libstdc++ \
+    fuse libattr libstdc++ autoconf automake \
+    libtool gettext-dev attr-dev make build-base git
+
+git clone -n https://github.com/trapexit/mergerfs.git /tmp/mergerfs >/dev/null 2>&1 && \
+    cd /tmp/mergerfs && \
+    make STATIC=1 LTO=1 && make install >/dev/null 2>&1
+    cp /usr/local/bin/mergerfs /usr/bin/mergerfs 
+mgstored="$(mergerfs -v | grep 'mergerfs version:' | awk '{print $3}')"
+log "->Installed MergerFS Version $mgstored <-"
+
+log "-> Configure MergerFS || start <-"
+apk --quiet --no-cache --no-progress add \
+     fuse libattr libgcc libstdc++ \
      libtool gettext-dev attr-dev
 apk --no-cache update --quiet
 apk --no-cache upgrade --quiet
 apk --no-cache fix --quiet
 rm -rf /var/cache/apk/*
 
-log "-> configure mergerfs || start <-"
+log "-> Configure MergerFS|| start <-"
 sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
 log "-> Configure Mergerfs || done <-"
 #>EOF<#
