@@ -20,6 +20,6 @@ for i in ${mountsuncrypt[@]}; do
   echo -e "$(date)\
   $(rclone size $i: --config=${config} --fast-list --exclude="**encrypt**" --user-agent="SomeLegitUserAgent")"  > /config/logs/$i/mountsize-$i.log
 done
-
+##sleep for next day##
 sleep $(($(date -f - +%s- <<< $'tomorrow 00:30\nnow')0))
 done
