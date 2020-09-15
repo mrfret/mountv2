@@ -27,12 +27,12 @@ if [ -f "/config/rclone.conf" ]; then
     log "-> rclone_docker.conf edits done <-"
 fi
 log "-> install rclone || start <-"
-    apk add unzip bash --quiet 
+    apk add unzip bash curl --quiet 
     curl --no-progress-meter https://rclone.org/install.sh | bash >/dev/null 2>&1
     if [[ $(rclone --version)  ]]; then
        echo "rclone installed correctly!"
 	else
-       wget --quiet qhttps://downloads.rclone.org/rclone-current-linux-amd64.zip -O rclone.zip && \
+       wget --quiet https://downloads.rclone.org/rclone-current-linux-amd64.zip -O rclone.zip && \
        unzip -q rclone.zip && rm rclone.zip && \
        mv rclone*/rclone /usr/bin && rm -r rclone*
       echo "failsafe install of rclone was running"
