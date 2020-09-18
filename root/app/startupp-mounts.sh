@@ -114,7 +114,7 @@ sleep 10
 UFSPATH=$(cat /tmp/rclone-mount.file)
 log "read ${UFSPATH} to see the remote binded mounts"
 
-mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 #### CHECK DOCKER.SOCK ####
 dockesock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
@@ -132,7 +132,7 @@ MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 while true; do
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     mergerfs -o nonempty,statfs_ignore=nc,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+     mergerfs -o nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
      checkmountstatus
