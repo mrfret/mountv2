@@ -38,11 +38,13 @@ UAGENT=${UAGENT:-somerandstring}
 SMOUNT=/config/scripts
 SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
-SCACHE=/tmp/rclone_cache/
+SCACHE=/tmp/rclone_cache
+DFOLD=/config/discord
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
 mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file
 touch /tmp/rclone-mount.file

@@ -16,18 +16,27 @@ DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
 DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
 DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
 DISCORD="/config/discord/failed.discord"
+DISCORD_FOLDER=/config/discord
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
-sleep 60
+function checkmergerfs() {
+MERGERFS_PID=$(pgrep mergerfs)
+if [ -z "${MERGERFS_PID}" ]; then
+    sleep 5
+	checkmergerfs
+	log "waiting for running megerfs"
+fi
+}
+checkmergerfs
 while true; do
  for i in ${mounts[@]}; do
   command_running=$(ls /mnt/drive-$i/ | wc -l)
   if [ "$command_running" == '0' ]; then
-     log "-> second check of running mount [Mount] <-" $i;
+     log "-> second check of running mount [Mount] <-" $i
      command_exist_pid=/config/scripts/$i.mounted
      if [ -f "$command_exist_pid" ]; then
          MERGERFS_PID=$(pgrep mergerfs)
@@ -42,14 +51,14 @@ while true; do
                msg_content=$(cat "${DISCORD}")
                curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
             else
-               logfailed $i " MERGERFS WORKS <- [Mount] ";
+               logfailed $i " MERGERFS WORKS <- [Mount] "
             fi
          fi
      else
-         logfailed $i " not mounted or failed <- [Mount] ";
+         logfailed $i " not mounted or failed <- [Mount] "
      fi
   else
-     echo; log $i "-> is mounted and works <- [Mount]";
+     log $i "-> is mounted and works <- [Mount]"
   fi
  done
  sleep 5

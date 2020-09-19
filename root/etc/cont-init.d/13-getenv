@@ -2,12 +2,23 @@
 # shellcheck shell=bash
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
+drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
+checkspace=$(echo $(( ( ${drivespace} )/100*25 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
+if [[ ${checkspace} -le "10" ]]; then
+   VFS_CACHE_MAX_SIZE=1G
+elif [[ ${checkspace} -gt "10" && ${checkspace} -le "100" ]]; then
+   VFS_CACHE_MAX_SIZE=10G
+elif [[ ${checkspace} -gt "101" ]]; then
+   VFS_CACHE_MAX_SIZE=100G
+else
+   VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
+fi
 DIR_CACHE_TIME=${DIR_CACHE_TIME:-2m}
 VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-96M}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-48h}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
 VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
-VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-10G}
+VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 BUFFER_SIZE=${BUFFER_SIZE:-64M}
 PUID=${PUID:-911}
 PGID=${PGID:-911}
@@ -29,6 +40,8 @@ echo "
    VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE}
    BUFFER_SIZE                    ${BUFFER_SIZE}
    LOGLEVEL                       ${LOGLEVEL}
+   PUID                           ${PUID}
+   PUID                           ${PUID}
 -------------------------------------------------------
 "
 }
