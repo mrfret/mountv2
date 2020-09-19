@@ -91,6 +91,10 @@ log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SCHECK=/config/check
 SLOG=/config/logs
+IFS=$'\n'
+filter="$1"
+config=/config/rclone/rclone-docker.conf
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 for i in ${mounts[@]}; do
     discord_send
     mkdir -p ${SLOG} && mkdir -p ${SCHECK} && mkdir -p ${SMOUNT}
