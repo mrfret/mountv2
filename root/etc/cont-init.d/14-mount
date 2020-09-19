@@ -80,6 +80,7 @@ rclone mount $i: /mnt/drive-$i \\
     --uid=${PUID} --gid=${PGID} \\
     --cache-db-purge --write-back-cache \\
     --allow-other --allow-non-empty --timeout=1h \\
+    --cache-db-purge --write-back-cache \\
     --cache-dir=/tmp/rclone_cache/$i \\
     --tpslimit=8 --user-agent=${UAGENT} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
