@@ -44,7 +44,7 @@ mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
 mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
 ##### FOLDER END #####
-
+rm -rf /tmp/rclone-mount.file
 ##### RUN MOUNT #####
 for i in ${mounts[@]}; do
   if [ ! -d "/mnt/drive-$i" ]; then     
