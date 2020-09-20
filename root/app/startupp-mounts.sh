@@ -24,19 +24,20 @@ function wait_for() {
   startupdocker
 }
 function restart_container() {
-    logdocker " -------------------------------"
-    logdocker " -->    INSTALL DOCKER      <---"
-    logdocker " -------------------------------"
-    apk add docker --quiet --no-cache --force-refresh --no-progress
+logdocker " -------------------------------"
+logdocker " -->    RESTART DOCKER      <---"
+logdocker " -->         START          <---"
+logdocker " -------------------------------"
+apk add docker --quiet --no-cache --force-refresh --no-progress
 sleep 3
-docker ps -a -q --format '{{.Names}}' | sort -r | sed -e 's/oauth//g' | sed -e 's/portainer//g' | sed -e 's/traefik//g' | sed -e 's/mounts//g' | sed '/^$/d' > /tmp/dockers
+docker ps -a -q --format '{{.Names}}' | sort -r | sed '/^$/d' > /tmp/dockers
 #### LIST SOME DOCKER TO RESTART ####
 containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
 for container in $containers; do
     logdocker " -->> Stopping $container <<-- "
     docker stop $container >> /dev/null
 done
-    logdocker " --> sleeping 5secs for graceful stopped containers <--"
+    logdocker " -->> sleeping 5secs for graceful stopped containers <<--"
     sleep 5
 for container in $containers; do
     logdocker " -->> Starting $container <<-- "
@@ -44,12 +45,12 @@ for container in $containers; do
 done
 sleep 5
 apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress
+rm -rf /tmp/dockers
 logdocker " -------------------------------"
-logdocker " -->  restart dockers done  <<--"
-logdocker " -->  purge docker install  <<--"
+logdocker " -->    RESTART DOCKER      <---"
+logdocker " -->       FINISHED         <---"
 logdocker " -------------------------------"
 }
-#### function source end
 function discord_send() {
 IFS=$'\n'
 filter="$1"
@@ -59,11 +60,11 @@ DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
 DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
 DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
 if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-   echo "[Mount] -> Starting $i Mount  $(date) <- [Mount]" >"${DISCORD}"
+   echo "[Mount] -> Starting $i Mount $(date) <- [Mount]" >"${DISCORD}"
    msg_content=$(cat "${DISCORD}")
    curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
 else
-   log " Starting $i Mount  $(date) <- [Mount]"
+   log " Starting $i Mount $(date) <- [Mount]"
 fi
 }
 function checkmountstatus() {
@@ -76,7 +77,7 @@ for i in ${mounts[@]}; do
 if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) ]; then
     fusermount -uz /mnt/drive-$i >>/dev/null
     fusermount -uz /mnt/unionfs >>/dev/null
-    log "-> REMounting $i <-"
+    log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
     sleep 1
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
@@ -87,6 +88,14 @@ if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) 
   fi
 done
 }
+function cachefolders() {
+##for pree start
+  touch /tmp/LSFOLDER
+  ls -alR /mnt/unionfs | grep -v 'encrypt' >/tmp/LSFOLDER
+  rm -rf /tmp/LSFOLDER
+}
+
+#### END OF FUNCTION #####
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SCHECK=/config/check
@@ -108,7 +117,7 @@ sleep 10
 UFSPATH=$(cat /tmp/rclone-mount.file)
 echo -e "nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
-log "read ${UFSPATH} to see the remote binded mounts"
+log "show the binded mounts with NC-FLAG ${UFSPATH}"
 mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 sleep 10
 #### CHECK DOCKER.SOCK ####
@@ -116,13 +125,15 @@ dockersock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
 if [[ ${dockersock} == '1' ]]; then
    startupdocker
+   cachefolders
 else
    sleep 1
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    logdocker "   SAMPLE :"
-   logdocker "   Plex / Sonarr / LIDARR / RADARR / EMBY"
+   logdocker "   PLEX / SONARR / LIDARR / RADARR / EMBY"
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
-   sleep 30
+   sleep 30 
+   cachefolders
 fi
 MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
