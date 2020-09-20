@@ -21,17 +21,17 @@
 	<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0"><tbody><tr>
 	<td width="90%" height="30" style="color: #E11919; font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', 'DejaVu Sans', Verdana, sans-serif; font-weight: bolder; font-size: large; text-align: left;"><br>   MOUNT LOGS</td></tr></tbody></table>
 	<table width="100%" border="1" align="center" cellpadding="5" cellspacing="0"><tbody><tr><td colspan="6" bgcolor="#000000" style="color: #F7F6F6; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif; font-weight: bold; font-size: medium;">
-	<span class="test" style="color: #FFFFFF; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif;"><?php $output = shell_exec('tail -n 20 /config/logs/*/rclone-*.log');echo "<pre>$output</pre>";?></span></td></tr></tbody></table>
+	<span class="test" style="color: #FFFFFF; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif;"><?php $output = shell_exec('tail -n 20 /config/logs/*/rclone-*.log'); echo "<pre>$output</pre>"; ?></span></td></tr></tbody></table>
 
 	<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0"><tbody><tr>
 	<td width="90%" height="30" style="color: #E11919; font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', 'DejaVu Sans', Verdana, sans-serif; font-weight: bolder; font-size: large; text-align: left;"><br>   MOUNT STATUS</td></tr></tbody></table>
 	<table width="100%" border="1" align="center" cellpadding="5" cellspacing="0"><tbody><tr><td colspan="6" bgcolor="#000000" style="color: #F7F6F6; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif; font-weight: bold; font-size: medium;">
-	<span class="test" style="color: #FFFFFF; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif;"><?php $output = shell_exec('tail -n 20 /config/check/*.mounted');echo "<pre>$output</pre>";?></span></td></tr></tbody></table>
+	<span class="test" style="color: #FFFFFF; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif;"><?php $output = shell_exec('tail -n 20 /config/check/*.mounted'); echo "<pre>$output</pre>"; ?></span></td></tr></tbody></table>
 
 	<table width="100%" border="0" align="center" cellpadding="0" cellspacing="0"><tbody><tr>
 	<td width="90%" height="30" style="color: #E11919; font-family: 'Lucida Grande', 'Lucida Sans Unicode', 'Lucida Sans', 'DejaVu Sans', Verdana, sans-serif; font-weight: bolder; font-size: large; text-align: left;"><br>   DRIVE USED</td></tr></tbody></table>
 	<table width="100%" border="1" align="center" cellpadding="5" cellspacing="0"><tbody><tr><td colspan="6" bgcolor="#000000" style="color: #F7F6F6; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif; font-weight: bold; font-size: medium;">
-	<span class="test" style="color: #FFFFFF; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif;"><?php $output = shell_exec('tail -n 20 /config/logs/*/mountsize-*.log');echo "<pre>$output</pre>";?></span></td></tr></tbody></table>
+	<span class="test" style="color: #FFFFFF; font-family: Segoe, 'Segoe UI', 'DejaVu Sans', 'Trebuchet MS', Verdana, sans-serif;"><?php $output = shell_exec('tail -n 20 /config/logs/*/mountsize-*.log'); echo "<pre>$output</pre>"; ?></span></td></tr></tbody></table>
     </br></br></br>
     <footer class="site-footer"> <div class="container"><div class="row"><div class="col-md-8 col-sm-6 col-xs-12"><p class="copyright-text">Copyright &copy; 2020 All Rights Reserved by MrDoob/doob187 </p></div></footer>
 </body>
