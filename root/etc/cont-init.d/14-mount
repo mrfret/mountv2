@@ -76,9 +76,7 @@ rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
-    --uid=${PUID} --gid=${PGID} --umask=002 \\
-    --allow-other --allow-non-empty \\
-    --drive-skip-gdocs --timeout=1h \\
+    --uid=${PUID} --gid=${PGID} --timeout=1h \\
     --tpslimit=8 --user-agent=${UAGENT} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
