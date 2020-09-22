@@ -36,10 +36,12 @@ RUN \
   rm /tmp/s6-overlay-amd64.tar.gz >/dev/null 2>&1 && \
   echo "**** Installed s6-overlay `cat /etc/S6_RELEASE` ****"
 
-RUN wget --quiet https://downloads.rclone.org/rclone-current-linux-amd64.zip -O rclone.zip --no-check-certificate && \
-    unzip -q rclone.zip && rm rclone.zip && \
-    mv rclone*/rclone /usr/bin && rm -r rclone* && \
-    mkdir -p /rclone
+RUN \
+  curl -O https://downloads.rclone.org/v1.52.0/rclone-v1.52.0-linux-amd64.zip && \
+  unzip -q rclone-v1.52.0-linux-amd64.zip && \
+  rm -f rclone-v1.52.0-linux-amd64.zip && \
+  cd rclone-*-linux-amd64 && \
+  cp rclone /usr/bin/
 
 VOLUME [ "/mnt/unionfs" ]
 VOLUME [ "/config" ]

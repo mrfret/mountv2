@@ -12,7 +12,7 @@ if [[ ${checkspace} -le "10" ]]; then
 elif [[ ${checkspace} -gt "10" && ${checkspace} -le "100" ]]; then
    VFS_CACHE_MAX_SIZE=10G
 elif [[ ${checkspace} -gt "101" ]]; then
-   VFS_CACHE_MAX_SIZE=100G
+   VFS_CACHE_MAX_SIZE=20G
 else
    VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 fi
@@ -58,9 +58,7 @@ for i in ${mounts[@]}; do
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
     fusermount -uzq /mnt/drive-$i
   fi
-  if [ -f "${SMOUNT}/$i-mount.sh" ]; then
-     rm -f ${SMOUNT}/$i-mount.sh
-  fi
+  rm -f ${SMOUNT}/$i-mount.sh
   mkdir -p /config/logs/ && mkdir -p /config/logs/$i/
   touch /config/logs/$i/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
@@ -80,7 +78,6 @@ rclone mount $i: /mnt/drive-$i \\
     --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
-    --cache-db-purge --write-back-cache \\
     --allow-other --allow-non-empty --timeout=1h \\
     --cache-db-purge --write-back-cache \\
     --cache-dir=/tmp/rclone_cache/$i \\
