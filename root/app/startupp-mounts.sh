@@ -88,13 +88,6 @@ if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) 
   fi
 done
 }
-function cachefolders() {
-##for pree start
-  touch /tmp/LSFOLDER
-  ls -alR /mnt/unionfs | grep -v 'encrypt' >/tmp/LSFOLDER
-  rm -rf /tmp/LSFOLDER
-}
-
 #### END OF FUNCTION #####
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
@@ -125,15 +118,13 @@ dockersock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
 if [[ ${dockersock} == '1' ]]; then
    startupdocker
-   cachefolders
 else
    sleep 1
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    logdocker "   SAMPLE :"
    logdocker "   PLEX / SONARR / LIDARR / RADARR / EMBY"
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
-   sleep 30 
-   cachefolders
+   sleep 30
 fi
 MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
