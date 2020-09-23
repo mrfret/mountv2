@@ -5,17 +5,23 @@
 function log() {
 echo "[Mount] ${1}"
 }
-#drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
-#checkspace=$(echo $(( ( ${drivespace} )/100*25 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-#if [[ ${checkspace} -le "10" ]]; then
-#   VFS_CACHE_MAX_SIZE=1G
-#elif [[ ${checkspace} -gt "10" && ${checkspace} -le "100" ]]; then
-#   VFS_CACHE_MAX_SIZE=10G
-#elif [[ ${checkspace} -gt "101" ]]; then
-#   VFS_CACHE_MAX_SIZE=20G
-#else
-#   VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
-#fi
+
+config=/config/rclone/rclone-docker.conf
+drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
+checkspace=$(echo $(( ( ${drivespace} )/100*12 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
+rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | wc -l)
+endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
+if [[ ${endvalue} -le "10" ]]; then
+   VFS_CACHE_MAX_SIZE=1G
+elif [[ ${endvalue} -gt "10" && ${endvalue} -le "50" ]]; then
+   VFS_CACHE_MAX_SIZE=10G
+elif [[ ${endvalue} -gt "50" && ${endvalue} -le "100" ]]; then
+   VFS_CACHE_MAX_SIZE=20G
+elif [[ ${endvalue} -gt "101" ]]; then
+   VFS_CACHE_MAX_SIZE=25G
+else
+   VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
+fi
 ## function source start
 IFS=$'\n'
 filter="$1"
@@ -23,11 +29,11 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 DIR_CACHE_TIME=${DIR_CACHE_TIME:-5m}
-VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-16M}
+VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-64M}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-1h}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
-VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
-VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-off}
+VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
+VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 BUFFER_SIZE=${BUFFER_SIZE:-8M}
 PUID=${PUID:-911}
 PGID=${PGID:-911}
@@ -79,16 +85,19 @@ rclone mount $i: /mnt/drive-$i \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
     --drive-skip-gdocs --timeout=1h \\
-    --tpslimit=8 --user-agent=${UAGENT} \\
+    --cache-dir=/tmp/rclone_cache/$i \\
+    --tpslimit=8 --tpslimit-burst=8 \\
+    --user-agent=${UAGENT} --no-checksum \\
+    --no-modtime --no-seek \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
-    --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --buffer-size=${BUFFER_SIZE} & \n" >> ${SMOUNT}/$i-mount.sh
+    --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} --daemon \n" >> ${SMOUNT}/$i-mount.sh
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
     log "-->> Mount file created for $i <<--"
 done
 
 #EOF#
+    ####--buffer-size=${BUFFER_SIZE} & \n" >> ${SMOUNT}/$i-mount.sh
