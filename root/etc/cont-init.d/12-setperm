@@ -9,7 +9,9 @@ echo "[Mount] ${1}"
 log "-> Setting Permissions || start <-"
 chown -hR abc:abc  \
           /config \
-          /mnt
+          /mnt \
+          /config/rclone \
+          /root
 
 chmod a+x /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
@@ -28,6 +30,8 @@ chown -R abc:abc /run \
           /var/log/nginx \
           /var/www
 
+if [[ $(command -v rclone | wc -l) == "1" ]]; then
+    chown -cf abc:abc /root
+fi
 log "-> Setting Permissions || done <-"
-    chown -hR abc:abc /mnt/unionfs
 #EOF
