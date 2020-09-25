@@ -13,4 +13,4 @@ check_mounts="/app/checkmounts.sh"
 sleep 5
 
 log "-> Starting Check Mounts <-"
-exec $check_mounts
+exec abc $check_mounts
