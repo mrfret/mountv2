@@ -87,8 +87,7 @@ rclone mount $i: /mnt/drive-$i \\
     --log-file=/config/logs/$i/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
-    --rc --rc-addr=127.0.0.1:${RC_ADDRESS} \\
-    --rc-no-auth --cache-db-purge --drive-chunk-size 16M \\
+    --cache-db-purge --drive-chunk-size=16M \\
     --allow-other --allow-non-empty \\
     --drive-skip-gdocs --timeout=1h \\
     --cache-dir=/tmp/rclone_cache/$i \\
@@ -107,3 +106,5 @@ done
     #### --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
     #### --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE}
     #### --buffer-size=${BUFFER_SIZE} & \n" >> ${SMOUNT}/$i-mount.sh
+    #### --rc --rc-addr=127.0.0.1:${RC_ADDRESS} \\
+    #### --rc-no-auth
