@@ -13,4 +13,4 @@ startup_mounts="/app/startupp-mounts.sh"
 sleep 5
 
 log "-> Starting mounts <-"
-exec $startup_mounts
+exec abc $startup_mounts
