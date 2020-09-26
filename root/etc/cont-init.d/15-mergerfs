@@ -17,9 +17,12 @@ apk --no-cache update --quiet && apk --no-cache upgrade --quiet && apk --no-cach
 log "-> please hold the line ...... <- [Mount]"
 git clone --quiet https://github.com/trapexit/mergerfs.git /tmp/mergerfs 1>/dev/null 2>&1 && cd /tmp/mergerfs && \
     git checkout --quiet `cat /tmp/mergerfs_version` -b local && make STATIC=1 LTO=1 1>/dev/null 2>&1 && make install 1>/dev/null 2>&1
-    cp /usr/local/bin/mergerfs /usr/bin/mergerfs 1>/dev/null 2>&1
-    cp /usr/local/bin/mergerfs-fusermount /usr/bin/mergerfs-fusermount 1>/dev/null 2>&1
-    cp /sbin/mount.mergerfs /sbin/mount.mergerf 1>/dev/null 2>&1
+    ln -s /usr/local/bin/mergerfs /usr/bin/mergerfs 1>/dev/null 2>&1
+    ln -s /usr/local/bin/mergerfs-fusermount /usr/bin/mergerfs-fusermount 1>/dev/null 2>&1
+    ln -s /sbin/mount.mergerfs /sbin/mount.mergerf 1>/dev/null 2>&1
+chmod a+x /usr/bin/mergerfs \
+          /usr/bin/mergerfs-fusermount \
+          /sbin/mount.mergerf
 log "-> Yippee-ki-yay, motherfucker! it's done <- [Mount]"
 mgstored="$(mergerfs -v | grep 'mergerfs version:' | awk '{print $3}')"
 log "-> Installed MergerFS Version $mgstored <- [Mount]"
