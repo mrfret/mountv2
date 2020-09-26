@@ -13,4 +13,4 @@ startup_mounts="/app/startupp-mounts.sh"
 sleep 5
 
 log "-> Starting mounts <-"
-exec s6-setuidgid abc $startup_mounts
+exec $startup_mounts
