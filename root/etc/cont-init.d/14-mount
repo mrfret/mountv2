@@ -5,7 +5,6 @@
 function log() {
 echo "[Mount] ${1}"
 }
-
 config=/config/rclone/rclone-docker.conf
 drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
 checkspace=$(echo $(( ( ${drivespace} )/100*12 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
@@ -51,8 +50,7 @@ mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
 mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
 mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 ##### FOLDER END #####
-rm -rf /tmp/rclone-mount.file
-touch /tmp/rclone-mount.file
+rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
 ##### RUN MOUNT #####
 for i in ${mounts[@]}; do
   if [ ! -d "/mnt/drive-$i" ]; then     
@@ -75,7 +73,7 @@ for i in ${mounts[@]}; do
 # shellcheck shell=bash ##
 # Copyright (c) ${dday}, MrDoob ##
 # rclone mount for $i over-shell-exec-command ##
-# create day = ${dday}
+# create day = ${ddaylic}
 # All rights reserved. ##
 ##\n
 rclone mount $i: /mnt/drive-$i \\
@@ -101,4 +99,3 @@ rclone mount $i: /mnt/drive-$i \\
 done
 
 #EOF#
-    ####--buffer-size=${BUFFER_SIZE} & \n" >> ${SMOUNT}/$i-mount.sh
