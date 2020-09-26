@@ -109,6 +109,7 @@ for i in ${mounts[@]}; do
 done
 sleep 10
 UFSPATH=$(cat /tmp/rclone-mount.file)
+rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
 echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
