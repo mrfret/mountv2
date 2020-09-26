@@ -28,10 +28,10 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 DIR_CACHE_TIME=${DIR_CACHE_TIME:-72h}
-VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-128M}
+VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-164M}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-72h}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
-VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
+VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 BUFFER_SIZE=${BUFFER_SIZE:-32M}
 PUID=${PUID:-911}
@@ -87,12 +87,13 @@ rclone mount $i: /mnt/drive-$i \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --user-agent=${UAGENT} --no-checksum \\
     --no-modtime --no-seek \\
+    --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
-    --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} --daemon \n" >> ${SMOUNT}/$i-mount.sh
+    --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} & \n" >> ${SMOUNT}/$i-mount.sh
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
     log "-->> Mount file created for $i <<--"
 done
