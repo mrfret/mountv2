@@ -86,8 +86,7 @@ rclone mount $i: /mnt/drive-$i \\
     --cache-dir=/tmp/rclone_cache/$i \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --user-agent=${UAGENT} --no-checksum \\
-    --no-modtime --no-seek \\ 
-    --buffer-size=${BUFFER_SIZE} \\
+    --no-modtime --no-seek \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
