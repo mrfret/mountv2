@@ -10,4 +10,4 @@ umask 022
 mountsize="/app/mountsize/mountsize.sh"
 sleep 5
 log "-> Starting mount size printing <-"
-exec $mountsize
+exec s6-setuidgid abc $mountsize

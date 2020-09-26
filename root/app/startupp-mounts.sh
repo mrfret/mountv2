@@ -109,10 +109,11 @@ for i in ${mounts[@]}; do
 done
 sleep 10
 UFSPATH=$(cat /tmp/rclone-mount.file)
-echo -e "nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
+rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
+echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
-mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+/usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 sleep 10
 #### CHECK DOCKER.SOCK ####
 dockersock=$(ls -la /var/run/docker.sock | wc -l)
@@ -128,10 +129,12 @@ else
    sleep 30
 fi
 MERGERFS_PID=$(pgrep mergerfs)
+
 log "MERGERFS_PID: ${MERGERFS_PID}"
+
 while true; do
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
      MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
      checkmountstatus

@@ -21,6 +21,12 @@ git clone --quiet https://github.com/trapexit/mergerfs.git /tmp/mergerfs 1>/dev/
     cp /usr/local/bin/mergerfs-fusermount /usr/bin/mergerfs-fusermount 1>/dev/null 2>&1
     cp /sbin/mount.mergerfs /sbin/mount.mergerf 1>/dev/null 2>&1
 log "-> Yippee-ki-yay, motherfucker! it's done <- [Mount]"
+chown -cR abc:abc /usr/bin/mergerfs \
+                  /usr/bin/mergerfs-fusermount \
+                  /sbin/mount.mergerf
+chmod a+x /usr/bin/mergerfs \
+          /usr/bin/mergerfs-fusermount \
+          /sbin/mount.mergerfs
 mgstored="$(mergerfs -v | grep 'mergerfs version:' | awk '{print $3}')"
 log "-> Installed MergerFS Version $mgstored <- [Mount]"
 sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
