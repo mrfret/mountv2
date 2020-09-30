@@ -7,33 +7,30 @@ echo "[Mount] ${1}"
 }
 config=/config/rclone/rclone-docker.conf
 drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
-checkspace=$(echo $(( ( ${drivespace} )/100*12 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
+checkspace=$(echo $(( ( ${drivespace} )/4 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
 rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | wc -l)
 endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-if [[ ${endvalue} -le "10" ]]; then
-   VFS_CACHE_MAX_SIZE=1G
-elif [[ ${endvalue} -gt "10" && ${endvalue} -le "50" ]]; then
-   VFS_CACHE_MAX_SIZE=10G
-elif [[ ${endvalue} -gt "50" && ${endvalue} -le "100" ]]; then
-   VFS_CACHE_MAX_SIZE=20G
-elif [[ ${endvalue} -gt "101" ]]; then
-   VFS_CACHE_MAX_SIZE=25G
+VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
+
+if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
+   VFS_CACHE_MAX_SIZE=${endvalue}
 else
    VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 fi
+
 ## function source start
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
-DIR_CACHE_TIME=${DIR_CACHE_TIME:-72h}
+DIR_CACHE_TIME=${DIR_CACHE_TIME:-168h}
 VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-64M}
-VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-72h}
-VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
+VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-168h}
+VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-2G}
 VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
-BUFFER_SIZE=${BUFFER_SIZE:-8M}
+BUFFER_SIZE=${BUFFER_SIZE:-16M}
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 LOGLEVEL=${LOGLEVEL:-ERROR}
@@ -91,7 +88,7 @@ rclone mount $i: /mnt/drive-$i \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
-    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
+    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE}G \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
