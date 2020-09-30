@@ -88,7 +88,7 @@ rclone mount $i: /mnt/drive-$i \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
-    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
+    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE}G \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
