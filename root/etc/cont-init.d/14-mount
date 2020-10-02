@@ -24,11 +24,11 @@ filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
-DIR_CACHE_TIME=${DIR_CACHE_TIME:-168h}
+DIR_CACHE_TIME=${DIR_CACHE_TIME:-24h}
 VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-64M}
-VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-168h}
+VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-24h}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-2G}
-VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
+VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 BUFFER_SIZE=${BUFFER_SIZE:-16M}
 PUID=${PUID:-911}
@@ -86,6 +86,8 @@ rclone mount $i: /mnt/drive-$i \\
     --no-modtime --no-seek \\
     --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
+    --vfs-cache-poll-interval=5m \\
+    --local-no-check-updated \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE}G \\
