@@ -5,6 +5,30 @@
 function log() {
 echo "[Mount] ${1}"
 }
+source /config/scripts/rclone.env
+echo "
+-------------------------------------------------------
+   DOCKER ENV vars
+-------------------------------------------------------
+   TimeZone                       ${TZ}
+   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
+   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
+   DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
+   DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
+   DRIVE_TRASH                    ${DRIVE_TRASH}
+   VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
+   VFS_READ_CHUNK_SIZE            ${VFS_READ_CHUNK_SIZE}
+   VFS_CACHE_MAX_AGE              ${VFS_CACHE_MAX_AGE}
+   VFS_READ_CHUNK_SIZE_LIMIT      ${VFS_READ_CHUNK_SIZE_LIMIT}
+   VFS_CACHE_MODE                 ${VFS_CACHE_MODE}
+   VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
+   BUFFER_SIZE                    ${BUFFER_SIZE}
+   LOGLEVEL                       ${LOGLEVEL}
+   UAGENT                         ${UAGENT}
+   PUID                           ${PUID}
+   PGID                           ${PGID}
+-------------------------------------------------------
+"
 ##### FOLDER START #####
 SMOUNT=/config/scripts
 SDOWN=/mnt/downloads
@@ -49,8 +73,6 @@ for i in ${mounts[@]}; do
 # All rights reserved. ##
 ##\n
 
-source /config/scripts/rclone.env
-
 rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/$i/rclone-$i.log \\
@@ -75,7 +97,7 @@ rclone mount $i: /mnt/drive-$i \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
-	chown -hR /tmp/rclone_cache/$i
+	chown -hR abc:abc /tmp/rclone_cache/$i
     log "-->> Mount file created for $i <<--"
 done
 
