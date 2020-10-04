@@ -81,7 +81,6 @@ rclone mount $i: /mnt/drive-$i \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
     --drive-skip-gdocs --timeout=1h \\
-    --cache-dir=/tmp/rclone_cache/$i \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --user-agent=${UAGENT} --no-checksum \\
     --no-modtime --no-seek \\
