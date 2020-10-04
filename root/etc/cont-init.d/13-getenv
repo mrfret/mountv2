@@ -2,17 +2,19 @@
 # shellcheck shell=bash
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
+config=/config/rclone/rclone-docker.conf
 drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
-checkspace=$(echo $(( ( ${drivespace} )/100*25 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-if [[ ${checkspace} -le "10" ]]; then
-   VFS_CACHE_MAX_SIZE=1G
-elif [[ ${checkspace} -gt "10" && ${checkspace} -le "100" ]]; then
-   VFS_CACHE_MAX_SIZE=10G
-elif [[ ${checkspace} -gt "101" ]]; then
-   VFS_CACHE_MAX_SIZE=100G
+checkspace=$(echo $(( ( ${drivespace} ) /3 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
+rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | wc -l)
+endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
+VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
+
+if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
+   VFS_CACHE_MAX_SIZE=${endvalue}
 else
    VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
 fi
+
 DIR_CACHE_TIME=${DIR_CACHE_TIME:-2m}
 VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-96M}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-48h}
@@ -37,7 +39,7 @@ echo "
    VFS_CACHE_MAX_AGE              ${VFS_CACHE_MAX_AGE}
    VFS_READ_CHUNK_SIZE_LIMIT      ${VFS_READ_CHUNK_SIZE_LIMIT}
    VFS_CACHE_MODE                 ${VFS_CACHE_MODE}
-   VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE}
+   VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
    BUFFER_SIZE                    ${BUFFER_SIZE}
    LOGLEVEL                       ${LOGLEVEL}
    PUID                           ${PUID}
