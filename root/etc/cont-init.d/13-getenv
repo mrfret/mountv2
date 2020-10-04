@@ -10,31 +10,58 @@ endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
 
 if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
-   VFS_CACHE_MAX_SIZE=${endvalue}
+   VFS_CACHE_MAX_SIZE=${endvalue}G
 else
-   VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
+   VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}G
 fi
 
-DIR_CACHE_TIME=${DIR_CACHE_TIME:-2m}
-VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-96M}
+## function source end
+UAGENT=${UAGENT:-null}
+if [[ ${UAGENT} == 'null' ]];then
+   UAGENT=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+else
+   UAGENT=${UAGENT}
+fi
+rcloneenv=/config/scripts/rclone.env
+if [[ ! -f ${rcloneenv} ]]; then
+echo -e "DRIVE_TRASH=${DRIVE_TRASH:-false}
+DIR_CACHE_TIME=${DIR_CACHE_TIME:-24h}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-48h}
-VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
-VFS_CACHE_MODE=${VFS_CACHE_MODE:-writes}
+VFS_CACHE_POLL_INTERVAL=${VFS_CACHE_POLL_INTERVAL:-5m}
+VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-32M}
+VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-2048M}
+VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
-BUFFER_SIZE=${BUFFER_SIZE:-64M}
+BUFFER_SIZE=${BUFFER_SIZE:-8M}
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 LOGLEVEL=${LOGLEVEL:-ERROR}
-UAGENT=${UAGENT:-somerandstring}
+TZ=${TZ:-UTC}
+DRIVE_CHUNK_SIZE=${DRIVE_CHUNK_SIZE:-128M}
+UAGENT=${UAGENT} " >/config/scripts/rclone.env
+else
+  echo "-->> [ WARNING ]--------------------[ WARNING ] <<--"
+  echo "     [ WARNING ]--> used stored <-- [ WARNING ] <<--"
+  echo "     [ WARNING ]    rclone.env      [ WARNING ] <<--"
+  echo "-->> [ WARNING ]--------------------[ WARNING ] <<--"
+fi
+##export TZdate
+apk --quiet --no-cache --no-progress add tzdata
+export TZ=${TZ}
 
 function envs() {
+source /config/scripts/rclone.env
 echo "
+-------------------------------------------------------
    DOCKER ENV vars
 -------------------------------------------------------
    TimeZone                       ${TZ}
    DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
    DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
    DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
+   DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
+   DRIVE_TRASH                    ${DRIVE_TRASH}
+   VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
    VFS_READ_CHUNK_SIZE            ${VFS_READ_CHUNK_SIZE}
    VFS_CACHE_MAX_AGE              ${VFS_CACHE_MAX_AGE}
    VFS_READ_CHUNK_SIZE_LIMIT      ${VFS_READ_CHUNK_SIZE_LIMIT}
@@ -42,8 +69,9 @@ echo "
    VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
    BUFFER_SIZE                    ${BUFFER_SIZE}
    LOGLEVEL                       ${LOGLEVEL}
+   UAGENT                         ${UAGENT}
    PUID                           ${PUID}
-   PUID                           ${PUID}
+   PGID                           ${PGID}
 -------------------------------------------------------
 "
 }
