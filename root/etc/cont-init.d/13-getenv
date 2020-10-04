@@ -40,10 +40,10 @@ TZ=${TZ:-UTC}
 DRIVE_CHUNK_SIZE=${DRIVE_CHUNK_SIZE:-128M}
 UAGENT=${UAGENT}" >/config/scripts/rclone.env
 else
-  echo "-->> [ WARNING ]--------------------[ WARNING ] <<--"
-  echo "     [ WARNING ]--> used stored <-- [ WARNING ] <<--"
-  echo "     [ WARNING ]    rclone.env      [ WARNING ] <<--"
-  echo "-->> [ WARNING ]--------------------[ WARNING ] <<--"
+  echo "-->> -------------------- <<--"
+  echo "     --> used stored <--  <<--"
+  echo "         rclone.env       <<--"
+  echo "-->> -------------------- <<--"
 fi
 ##export TZdate
 apk --quiet --no-cache --no-progress add tzdata
