@@ -93,7 +93,7 @@ rclone mount $i: /mnt/drive-$i \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE}G \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --deamon \n" >> ${SMOUNT}/$i-mount.sh
+    --daemon \n" >> ${SMOUNT}/$i-mount.sh
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
     log "-->> Mount file created for $i <<--"
 done
