@@ -133,9 +133,9 @@ MERGERFS_PID=$(pgrep mergerfs)
 log "MERGERFS_PID: ${MERGERFS_PID}"
 
 while true; do
+  MERGERFS_PID=$(pgrep mergerfs)
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
      /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
-     MERGERFS_PID=$(pgrep mergerfs)
      startupdocker
      checkmountstatus
   fi
