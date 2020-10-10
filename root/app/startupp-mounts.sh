@@ -29,7 +29,6 @@ logdocker " -->    RESTART DOCKER      <---"
 logdocker " -->         START          <---"
 logdocker " -------------------------------"
 apk add docker --quiet --no-cache --force-refresh --no-progress
-sleep 3
 docker ps -a -q --format '{{.Names}}' | sort -r | sed '/^$/d' > /tmp/dockers
 #### LIST SOME DOCKER TO RESTART ####
 containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
@@ -43,7 +42,6 @@ for container in $containers; do
     logdocker " -->> Starting $container <<-- "
     docker start $container >> /dev/null
 done
-sleep 5
 apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress
 rm -rf /tmp/dockers
 logdocker " -------------------------------"
@@ -107,14 +105,14 @@ for i in ${mounts[@]}; do
     sleep 1
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
-sleep 10
+sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
 echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
 /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
-sleep 10
+sleep 5
 #### CHECK DOCKER.SOCK ####
 dockersock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
@@ -128,9 +126,9 @@ else
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    sleep 30
 fi
-MERGERFS_PID=$(pgrep mergerfs)
 
-log "MERGERFS_PID: ${MERGERFS_PID}"
+MERGERFS_PID=$(pgrep mergerfs)
+log "MERGERFS PID: ${MERGERFS_PID}"
 
 while true; do
   MERGERFS_PID=$(pgrep mergerfs)
