@@ -11,8 +11,7 @@ FROM alpine:latest
 LABEL Maintainer="MrDooB" \
       Description="Container with rclone and auto mounting drives."
 
-ENV TZ="Europe/Berlin" \
-    DISCORD_WEBHOOK_URL=null \
+ENV DISCORD_WEBHOOK_URL=null \
     DISCORD_ICON_OVERRIDE="https://i.imgur.com/MZYwA1I.png" \
     DISCORD_NAME_OVERRIDE="RCLONE" \
     DISCORD_EMBED_TITEL="Mount Message"
@@ -25,7 +24,7 @@ RUN \
         ca-certificates libattr logrotate shadow bash bc findutils coreutils openssl \
         php7 php7-fpm  php7-mysqli php7-json php7-openssl php7-curl php7-zlib php7-xml php7-phar php7-dom \
         autoconf automake libtool gettext-dev attr-dev linux-headers musl \
-        php7-xmlreader php7-ctype php7-mbstring php7-gd curl nginx libxml2-utils tzdata openntpd grep tar && \
+        php7-xmlreader php7-ctype php7-mbstring php7-gd curl nginx libxml2-utils openntpd grep tar && \
         rm -rf /var/cache/apk/*
 
 RUN \

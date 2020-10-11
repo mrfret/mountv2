@@ -5,42 +5,37 @@
 function log() {
 echo "[Mount] ${1}"
 }
-config=/config/rclone/rclone-docker.conf
-drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
-checkspace=$(echo $(( ( ${drivespace} )/4 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | wc -l)
-endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
-
-if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
-   VFS_CACHE_MAX_SIZE=${endvalue}
-else
-   VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
-fi
-
-## function source start
-IFS=$'\n'
-filter="$1"
-config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
-## function source end
-DIR_CACHE_TIME=${DIR_CACHE_TIME:-168h}
-VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-32M}
-VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-168h}
-VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-1G}
-VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
-VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
-BUFFER_SIZE=${BUFFER_SIZE:-8M}
-PUID=${PUID:-911}
-PGID=${PGID:-911}
-LOGLEVEL=${LOGLEVEL:-ERROR}
-UAGENT=${UAGENT:-somerandstring}
+source /config/scripts/rclone.env
+echo "
+-------------------------------------------------------
+   DOCKER ENV vars
+-------------------------------------------------------
+   TimeZone                       ${TZ}
+   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
+   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
+   DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
+   DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
+   DRIVE_TRASH                    ${DRIVE_TRASH}
+   VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
+   VFS_READ_CHUNK_SIZE            ${VFS_READ_CHUNK_SIZE}
+   VFS_CACHE_MAX_AGE              ${VFS_CACHE_MAX_AGE}
+   VFS_READ_CHUNK_SIZE_LIMIT      ${VFS_READ_CHUNK_SIZE_LIMIT}
+   VFS_CACHE_MODE                 ${VFS_CACHE_MODE}
+   VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
+   BUFFER_SIZE                    ${BUFFER_SIZE}
+   LOGLEVEL                       ${LOGLEVEL}
+   UAGENT                         ${UAGENT}
+   PUID                           ${PUID}
+   PGID                           ${PGID}
+-------------------------------------------------------
+"
 ##### FOLDER START #####
 SMOUNT=/config/scripts
 SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
 SCACHE=/tmp/rclone_cache
 DFOLD=/config/discord
+rm -rf /config/logs/ && mkdir -p /config/logs
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
@@ -48,21 +43,25 @@ mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
 mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
+## function source start
+IFS=$'\n'
+filter="$1"
+config=/config/rclone/rclone-docker.conf
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ##### RUN MOUNT #####
 for i in ${mounts[@]}; do
   if [ ! -d "/mnt/drive-$i" ]; then     
-     mkdir -p /mnt/drive-$i && mkdir -p /tmp/rclone_cache/$i
-     chown -hR abc:abc /mnt/drive-$i && chown -hR abc:abc /tmp/rclone_cache/$i
-     chmod -R 775 /mnt/drive-$i && chmod -R 775 /tmp/rclone_cache/$i
+     mkdir -p /mnt/drive-$i && mkdir -p /tmp/rclone_cache/
+     chown -hR abc:abc /mnt/drive-$i && chown -hR abc:abc /tmp/rclone_cache/
+     chmod -R 775 /mnt/drive-$i && chmod -R 775 /tmp/rclone_cache/
   fi
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
     fusermount -uzq /mnt/drive-$i
   fi
-  rm -f ${SMOUNT}/$i-mount.sh
-  mkdir -p /config/logs/ && mkdir -p /config/logs/$i/
-  touch /config/logs/$i/rclone-$i.log
+  rm -rf ${SMOUNT}/$i-mount.sh
+  touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
-  truncate -s 0 /config/logs/*/**.log >> /dev/null
+  truncate -s 0 /config/logs/**.log >> /dev/null
   ddaylic=$(date +"%Y")
   dday=$(date)
   echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
@@ -73,26 +72,32 @@ for i in ${mounts[@]}; do
 # create day = ${ddaylic}
 # All rights reserved. ##
 ##\n
+
 rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
-    --log-file=/config/logs/$i/rclone-$i.log \\
+    --log-file=/config/logs/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
     --drive-skip-gdocs --timeout=1h \\
-    --cache-dir=/tmp/rclone_cache/$i \\
+    --cache-dir=/tmp/rclone_cache/ \\
     --tpslimit=8 --tpslimit-burst=8 \\
-    --user-agent=${UAGENT} --no-checksum \\
     --no-modtime --no-seek \\
+    --ignore-errors --use-mmap \\
+    --user-agent=${UAGENT} --no-checksum \\
+    --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
+    --drive-use-trash=${DRIVE_TRASH} \\
     --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
+    --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
-    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE}G \\
+    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
+    chown -hR abc:abc /tmp/rclone_cache/
     log "-->> Mount file created for $i <<--"
 done
 

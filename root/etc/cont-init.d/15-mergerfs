@@ -3,32 +3,49 @@
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
 function log() {
-echo "[Mount] ${1}"
+echo "[MERGERFS] ${1}"
 }
-log "-> Configure MergerFS || start <- [Mount]"
-rm -rf /tmp/mergerfs_version && rm -rf /tmp/mergerfs
-curl -sX GET "https://api.github.com/repos/trapexit/mergerfs/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]' > /tmp/mergerfs_version && \
-log "-> Install now MergerFS Version `cat /tmp/mergerfs_version` <- [Mount]"
-apk --quiet --no-cache --no-progress add \
-    fuse libattr libstdc++ autoconf automake \
-    libtool gettext-dev attr-dev linux-headers make build-base \
-    fuse libattr libstdc++ git
-apk --no-cache update --quiet && apk --no-cache upgrade --quiet && apk --no-cache fix --quiet && rm -rf /var/cache/apk/*
-log "-> please hold the line ...... <- [Mount]"
-git clone --quiet https://github.com/trapexit/mergerfs.git /tmp/mergerfs 1>/dev/null 2>&1 && cd /tmp/mergerfs && \
-    git checkout --quiet `cat /tmp/mergerfs_version` -b local && make STATIC=1 LTO=1 1>/dev/null 2>&1 && make install 1>/dev/null 2>&1
-    cp /usr/local/bin/mergerfs /usr/bin/mergerfs 1>/dev/null 2>&1
-    cp /usr/local/bin/mergerfs-fusermount /usr/bin/mergerfs-fusermount 1>/dev/null 2>&1
-    cp /sbin/mount.mergerfs /sbin/mount.mergerf 1>/dev/null 2>&1
-log "-> Yippee-ki-yay, motherfucker! it's done <- [Mount]"
-chown -cR abc:abc /usr/bin/mergerfs \
+
+log "-> Configure MergerFS || start <- [MERGERFS]"
+rm -rf /tmp/mergerfs_version
+curl -sX GET "https://api.github.com/repos/trapexit/mergerfs/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]' > /tmp/mergerfs_version
+if [[ $(command -v mergerfs) == "" ]]; then
+   echo "0" >/tmp/mergerfs_stored
+else
+   echo "$(mergerfs --version | awk '{print $3}')" >/tmp/mergerfs_stored
+fi
+if [[ `cat /tmp/mergerfs_version` != `cat /tmp/mergerfs_stored` ]]; then
+   rm -rf /tmp/mergerfs_version && rm -rf /tmp/mergerfs
+   curl -sX GET "https://api.github.com/repos/trapexit/mergerfs/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]' > /tmp/mergerfs_version
+   log "-> Install now MergerFS Version `cat /tmp/mergerfs_version` <- [MERGERFS]"
+   apk --quiet --no-cache --no-progress add \
+      fuse libattr libstdc++ autoconf automake \
+      libtool gettext-dev attr-dev linux-headers make build-base \
+      fuse libattr libstdc++ git
+   apk --no-cache update --quiet && apk --no-cache upgrade --quiet && apk --no-cache fix --quiet && rm -rf /var/cache/apk/*
+   log "-> please hold the line ...... <- [MERGERFS]"
+   rm -rf /tmp/mergerfs 1>/dev/null 2>&1
+   git clone --quiet https://github.com/trapexit/mergerfs.git /tmp/mergerfs 1>/dev/null 2>&1 && cd /tmp/mergerfs && \
+       git checkout --quiet `cat /tmp/mergerfs_version` -b local && make STATIC=1 LTO=1 1>/dev/null 2>&1 && make install 1>/dev/null 2>&1
+   log "-> Yippee-ki-yay, motherfucker! it's done <- [MERGERFS]"
+   rm -rf /usr/bin/mergerfs \
+          /usr/bin/mergerfs-fusermount \
+         /sbin/mount.mergerf
+   cp /usr/local/bin/mergerfs /usr/bin/mergerfs 1>/dev/null 2>&1
+   cp /usr/local/bin/mergerfs-fusermount /usr/bin/mergerfs-fusermount 1>/dev/null 2>&1
+   cp /sbin/mount.mergerfs /sbin/mount.mergerf 1>/dev/null 2>&1
+else
+   log "-> latest version of MergerFS already installed  <- [MERGERFS]"
+   log "-> latest version from trapexit `cat /tmp/mergerfs_version` <- [MERGERFS]"
+fi
+chown -cf abc:abc /usr/bin/mergerfs \
                   /usr/bin/mergerfs-fusermount \
                   /sbin/mount.mergerf
 chmod a+x /usr/bin/mergerfs \
           /usr/bin/mergerfs-fusermount \
           /sbin/mount.mergerfs
 mgstored="$(mergerfs -v | grep 'mergerfs version:' | awk '{print $3}')"
-log "-> Installed MergerFS Version $mgstored <- [Mount]"
+log "-> Installed MergerFS Version $mgstored  <- [MERGERFS]"
 sed -i 's/#user_allow_other/user_allow_other/' /etc/fuse.conf
-log "-> Configure Mergerfs || done <- [Mount]"
+log "-> Configure Mergerfs || done <- [MERGERFS]"
 #>EOF<#
