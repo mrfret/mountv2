@@ -95,7 +95,22 @@ rclone mount $i: /mnt/drive-$i \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
+    --rc --rc-no-auth --rc-addr=localhost:${PORTRC} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
+
+echo -e "#!/usr/bin/with-contenv bash
+# shellcheck shell=bash ##
+# Copyright (c) ${dday}, MrDoob ##
+# rclone rc vfs/refresh for $i over-shell-exec-command ##
+# create day = ${ddaylic}
+# All rights reserved. ##
+##\n
+
+rclone rc vfs/refresh \\
+       --config=${config} \\
+       --rc-addr=localhost:${PORTRC} \\
+       --log-file=/config/logs/rc-refresh-$i.log \\
+       --log-level=${LOGLEVEL} " >> ${SMOUNT}/$i-rc-file.sh
     chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
     chown -hR abc:abc /tmp/rclone_cache/
     log "-->> Mount file created for $i <<--"
