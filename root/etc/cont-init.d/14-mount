@@ -119,9 +119,10 @@ rclone rc vfs/refresh recursive=true \\
        --log-file=/config/logs/rc-refresh-$i.log \\
        --log-level=${LOGLEVEL_RC} \n
 ##\n
-chmod a+x  ${SRC}/$i-rc-file.sh \n
+chmod a+x ${SRC}/$i-rc-file.sh \n
 chown -hR abc:abc ${SRC}/$i-rc-file.sh \n
-chown -hR abc:abc /tmp/rclone_cache/ \n
+truncate -s 0 /config/logs/*$i*.log \n
+##\n
 #<EOF>#" >> ${SRC}/$i-rc-file.sh
     chmod a+x  ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
     chown -hR abc:abc /tmp/rclone_cache/
