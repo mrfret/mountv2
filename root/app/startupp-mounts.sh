@@ -12,7 +12,7 @@ function logdocker() {
 function startupdocker() {
 SERVICE=$(pgrep mergerfs | wc -l)
 LSFOLDER=$(ls /mnt/unionfs | wc -l)
-if [[ ${SERVICE} -ne "0" && ${LSFOLDER} -ne "0" ]]; then
+if [[ ${SERVICE} -ne "0" && ${LSFOLDER} -le "2" ]]; then
     restart_container
 else
     wait_for
@@ -110,7 +110,7 @@ done
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
-echo -e "async_read=false,statfs_ignore=nc,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.symlinks=true,cache.files=auto-full,dropcacheonclose=true,nonempty,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
+echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
 /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
@@ -135,7 +135,7 @@ log "MERGERFS PID: ${MERGERFS_PID}"
 while true; do
   MERGERFS_PID=$(pgrep mergerfs)
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+     # /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
      startupdocker
      checkmountstatus
   fi
