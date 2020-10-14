@@ -103,7 +103,7 @@ for i in ${mounts[@]}; do
     discord_send
     mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
     mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
-	mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
+    mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
     mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
     bash ${SRC}/$i-rc-file.sh
