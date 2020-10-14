@@ -11,8 +11,7 @@ function logdocker() {
 }
 function startupdocker() {
 SERVICE=$(pgrep mergerfs | wc -l)
-LSFOLDER=$(ls /mnt/unionfs | wc -l)
-if [[ ${SERVICE} -ne "0" && ${LSFOLDER} -le "2" ]]; then
+if [[ ${SERVICE} -ne "0" ]]; then
     restart_container
 else
     wait_for
