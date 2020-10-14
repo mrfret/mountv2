@@ -60,7 +60,7 @@ for i in ${mounts[@]}; do
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
     fusermount -uzq /mnt/drive-$i
   fi
-  rm -rf ${SMOUNT}/$i-mount.sh && rm -rf ${SMOUNT}/rc-refresh-$i.sh
+  rm -rf ${SMOUNT}/$i-mount.sh && rm -rf ${SMOUNT}/$i-rc-file.sh
   touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/**.log >> /dev/null
