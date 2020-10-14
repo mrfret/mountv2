@@ -43,7 +43,9 @@ mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
 mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
+rm -rf /tmp/RC_ADDRESS && rm -rf ${SMOUNT}/rc-refresh-**.sh
 ## function source start
+echo "5572" > /tmp/RCPORT
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
@@ -58,18 +60,20 @@ for i in ${mounts[@]}; do
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
     fusermount -uzq /mnt/drive-$i
   fi
-  rm -rf ${SMOUNT}/$i-mount.sh
+  rm -rf ${SMOUNT}/$i-mount.sh && rm -rf rm -rf ${SMOUNT}/rc-refresh-$i.sh
   touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/**.log >> /dev/null
   ddaylic=$(date +"%Y")
   dday=$(date)
+  RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
+  echo ${RC_ADDRESS} >/tmp/RCPORT
   echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
-# Copyright (c) ${dday}, MrDoob ##
+# Copyright (c) ${ddaylic}, MrDoob ##
 # rclone mount for $i over-shell-exec-command ##
-# create day = ${ddaylic}
+# create day = ${dday}
 # All rights reserved. ##
 ##\n
 
@@ -95,25 +99,29 @@ rclone mount $i: /mnt/drive-$i \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --rc --rc-no-auth --rc-addr=localhost:${PORTRC} \\
+    --rc --rc-no-auth --rc-addr=localhost:${RC_ADDRESS} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
 
 echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
-# Copyright (c) ${dday}, MrDoob ##
+# Copyright (c) ${ddaylic}, MrDoob ##
 # rclone rc vfs/refresh for $i over-shell-exec-command ##
-# create day = ${ddaylic}
+# create day = ${dday}
 # All rights reserved. ##
 ##\n
-
 rclone rc vfs/refresh \\
        --config=${config} \\
-       --rc-addr=localhost:${PORTRC} \\
+       --rc-addr=localhost:${RC_ADDRESS} \\
        --log-file=/config/logs/rc-refresh-$i.log \\
-       --log-level=${LOGLEVEL} " >> ${SMOUNT}/$i-rc-file.sh
-    chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
+       --log-level=${LOGLEVEL} \\
+	   \
+     chmod a+x  ${SMOUNT}/$i-rc-file.sh \
+     chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh \
+     chown -hR abc:abc /tmp/rclone_cache/ 
+	 #<EOF>#" >> ${SMOUNT}/$i-rc-file.sh
+    chmod a+x  ${SMOUNT}/$i-rc-file.sh && chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh
     chown -hR abc:abc /tmp/rclone_cache/
-    log "-->> Mount file created for $i <<--"
+    log "-->> rclone rc refresh file created for $i <<--"
 done
 
 #EOF#
