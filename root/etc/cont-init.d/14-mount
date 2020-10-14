@@ -24,6 +24,7 @@ echo "
    VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
    BUFFER_SIZE                    ${BUFFER_SIZE}
    LOGLEVEL                       ${LOGLEVEL}
+   LOGLEVEL_RC                    ${LOGLEVEL_RC}
    UAGENT                         ${UAGENT}
    PUID                           ${PUID}
    PGID                           ${PGID}
@@ -109,11 +110,11 @@ echo -e "#!/usr/bin/with-contenv bash
 # create day = ${dday}
 # All rights reserved. ##
 ##\n
-rclone rc vfs/refresh \\
+rclone rc vfs/refresh recursive=true \\
        --config=${config} \\
        --rc-addr=localhost:${RC_ADDRESS} \\
        --log-file=/config/logs/rc-refresh-$i.log \\
-       --log-level=${LOGLEVEL} \n
+       --log-level=${LOGLEVEL_RC} \n
 ##\n
 chmod a+x  ${SMOUNT}/$i-rc-file.sh \n
 chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh \n
