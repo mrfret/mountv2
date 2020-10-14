@@ -78,7 +78,8 @@ if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) 
     fusermount -uz /mnt/unionfs >>/dev/null
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
-    sleep 1
+	bash ${SMOUNT}/$i-rc-file.sh
+    sleep 3
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
   else
