@@ -113,11 +113,11 @@ rclone rc vfs/refresh \\
        --config=${config} \\
        --rc-addr=localhost:${RC_ADDRESS} \\
        --log-file=/config/logs/rc-refresh-$i.log \\
-       --log-level=${LOGLEVEL} \
-\
-chmod a+x  ${SMOUNT}/$i-rc-file.sh \
-chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh \
-chown -hR abc:abc /tmp/rclone_cache/ 
+       --log-level=${LOGLEVEL} \n
+##\n
+chmod a+x  ${SMOUNT}/$i-rc-file.sh \n
+chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh \n
+chown -hR abc:abc /tmp/rclone_cache/ \n
 #<EOF>#" >> ${SMOUNT}/$i-rc-file.sh
     chmod a+x  ${SMOUNT}/$i-rc-file.sh && chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh
     chown -hR abc:abc /tmp/rclone_cache/
