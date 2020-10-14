@@ -102,7 +102,8 @@ for i in ${mounts[@]}; do
     chmod 775 ${SLOG} && chmod 775 ${SCHECK} && chmod 775 ${SMOUNT}
     chmod 775 ${SCHECK} && chmod 775 ${SCHECK} && chmod 775 ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
-    sleep 1
+	bash ${SMOUNT}/$i-rc-file.sh
+    sleep 3
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 5
