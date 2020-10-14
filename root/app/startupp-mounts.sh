@@ -66,6 +66,8 @@ else
 fi
 }
 function checkmountstatus() {
+SMOUNT=/config/scripts
+SRC=/config/rc-refresh
 SCHECK=/config/check
 IFS=$'\n'
 filter="$1"
@@ -77,7 +79,7 @@ if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) 
     fusermount -uz /mnt/unionfs >>/dev/null
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
-    bash ${SMOUNT}/$i-rc-file.sh
+    bash ${SRC}/$i-rc-file.sh
     sleep 3
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
@@ -90,6 +92,7 @@ done
 #### END OF FUNCTION #####
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
+SRC=/config/rc-refresh
 SCHECK=/config/check
 SLOG=/config/logs
 IFS=$'\n'
@@ -98,11 +101,12 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 for i in ${mounts[@]}; do
     discord_send
-    mkdir -p ${SLOG} && mkdir -p ${SCHECK} && mkdir -p ${SMOUNT}
-    chmod 775 ${SLOG} && chmod 775 ${SCHECK} && chmod 775 ${SMOUNT}
-    chmod 775 ${SCHECK} && chmod 775 ${SCHECK} && chmod 775 ${SCHECK}
+    mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
+    mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
+	mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
+    mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
-    bash ${SMOUNT}/$i-rc-file.sh
+    bash ${SRC}/$i-rc-file.sh
     sleep 3
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done

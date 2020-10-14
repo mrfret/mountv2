@@ -32,12 +32,14 @@ echo "
 "
 ##### FOLDER START #####
 SMOUNT=/config/scripts
+SRC=/config/rc-refresh
 SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
 SCACHE=/tmp/rclone_cache
 DFOLD=/config/discord
 rm -rf /config/logs/ && mkdir -p /config/logs
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
+mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
 mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
 mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
@@ -45,6 +47,7 @@ mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
 rm -rf /tmp/RC_ADDRESS && rm -rf ${SMOUNT}/rc-refresh-**.sh
+rm -rf ${SRC}/rc-refresh-**.sh
 ## function source start
 echo "5572" > /tmp/RCPORT
 IFS=$'\n'
@@ -116,11 +119,11 @@ rclone rc vfs/refresh recursive=true \\
        --log-file=/config/logs/rc-refresh-$i.log \\
        --log-level=${LOGLEVEL_RC} \n
 ##\n
-chmod a+x  ${SMOUNT}/$i-rc-file.sh \n
-chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh \n
+chmod a+x  ${SRC}/$i-rc-file.sh \n
+chown -hR abc:abc ${SRC}/$i-rc-file.sh \n
 chown -hR abc:abc /tmp/rclone_cache/ \n
-#<EOF>#" >> ${SMOUNT}/$i-rc-file.sh
-    chmod a+x  ${SMOUNT}/$i-rc-file.sh && chown -hR abc:abc ${SMOUNT}/$i-rc-file.sh
+#<EOF>#" >> ${SRC}/$i-rc-file.sh
+    chmod a+x  ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
     chown -hR abc:abc /tmp/rclone_cache/
     log "-->> rclone rc refresh file created for $i <<--"
 done
