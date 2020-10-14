@@ -78,7 +78,7 @@ if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) 
     fusermount -uz /mnt/unionfs >>/dev/null
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
-	bash ${SMOUNT}/$i-rc-file.sh
+    bash ${SMOUNT}/$i-rc-file.sh
     sleep 3
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
@@ -103,7 +103,7 @@ for i in ${mounts[@]}; do
     chmod 775 ${SLOG} && chmod 775 ${SCHECK} && chmod 775 ${SMOUNT}
     chmod 775 ${SCHECK} && chmod 775 ${SCHECK} && chmod 775 ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
-	bash ${SMOUNT}/$i-rc-file.sh
+    bash ${SMOUNT}/$i-rc-file.sh
     sleep 3
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
