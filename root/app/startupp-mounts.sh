@@ -113,7 +113,7 @@ done
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
-echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
+echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
 /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
