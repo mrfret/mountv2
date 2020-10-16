@@ -22,6 +22,7 @@ echo "
    VFS_READ_CHUNK_SIZE_LIMIT      ${VFS_READ_CHUNK_SIZE_LIMIT}
    VFS_CACHE_MODE                 ${VFS_CACHE_MODE}
    VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
+   VFS_REFRESH                    ${VFS_REFRESH}
    BUFFER_SIZE                    ${BUFFER_SIZE}
    LOGLEVEL                       ${LOGLEVEL}
    LOGLEVEL_RC                    ${LOGLEVEL_RC}
@@ -124,7 +125,8 @@ chown -hR abc:abc ${SRC}/$i-rc-file.sh \n
 truncate -s 0 /config/logs/*$i*.log \n
 ##\n
 #<EOF>#" >> ${SRC}/$i-rc-file.sh
-    chmod a+x  ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
+
+    chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
     chown -hR abc:abc /tmp/rclone_cache/
     log "-->> rclone rc refresh file created for $i <<--"
 done
