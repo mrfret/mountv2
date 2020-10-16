@@ -27,8 +27,8 @@ function checkmergerfs() {
 MERGERFS_PID=$(pgrep mergerfs)
 if [ -z "${MERGERFS_PID}" ]; then
     sleep 5
-	checkmergerfs
-	log "waiting for running megerfs"
+    checkmergerfs
+    log "waiting for running megerfs"
 fi
 }
 checkmergerfs
