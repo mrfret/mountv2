@@ -4,7 +4,9 @@
 # All rights reserved.
 # 
 # ## function source start
-
+# shellcheck disable=SC2086
+# shellcheck disable=SC2002
+# shellcheck disable=SC2006
 source /config/scripts/rclone.env
 VFS_REFRESH=${VFS_REFRESH}
 flags=/config/scripts/rclone.env
