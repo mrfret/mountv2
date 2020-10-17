@@ -30,7 +30,7 @@ logdocker " -------------------------------"
 apk add docker --quiet --no-cache --force-refresh --no-progress
 docker ps -a -q --format '{{.Names}}' | sort -r | sed '/^$/d' > /tmp/dockers
 #### LIST SOME DOCKER TO RESTART ####
-containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
+containers=$(grep -E 'ple|arr|emb|jell' /tmp/dockers)
 for container in $containers; do
     logdocker " -->> Stopping $container <<-- "
     docker stop $container >> /dev/null
