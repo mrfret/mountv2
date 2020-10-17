@@ -5,7 +5,14 @@
 # 
 # ## function source start
 
+source /config/scripts/rclone.env
 VFS_REFRESH=${VFS_REFRESH}
+flags=/config/scripts/rclone.env
+if [[ "$(cat ${flags} | grep 'VFS_REFRESH' | wc -l)" != `1` &&  ]]; then
+   VFS_REFRESH=${VFS_REFRESH:-48h}
+else
+   VFS_REFRESH=${VFS_REFRESH}
+fi
 
 function refresh() {
 SRC=/config/rc-refresh
@@ -42,8 +49,8 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 for i in ${mounts[@]}; do
   run=$(ls /mnt/drive-$i/ | wc -l)
-  pids="$(ps -ef | grep '$i-mount.sh' | head -n 1 | grep -v grep | awk '{print $1}' | wc -l)"
-  if [[ "$run" != "0" && "$pids" != "0" ]]; then
+  pids="$(ps -ef | grep '$i:' | head -n 1 | grep -v grep | awk '{print $1}' | wc -l)"
+  if [[ "$run" != '0' && "$pids" != '0- ]]; then
      refresh
   else
      sleep 30
