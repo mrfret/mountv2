@@ -74,9 +74,9 @@ filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 for i in ${mounts[@]}; do
-  run=$(ls /mnt/drive-$i/ | wc -l)
-  pids="$(ps -ef | grep '$i' | head -n 1 | grep -v grep | awk '{print $1}' | wc -l)"
-  if [[ "$run" != '0' && "$pids" != '0' ]]; then
+  run=$(ls -la /mnt/drive-$i/ | wc -l)
+  pids=$(ps -ef | grep '$i' | head -n 1 | awk '{print $1}')
+  if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
     truncate -s 2 ${SCHECK}/$i.mounted
     echo "last check $(date)" > ${SCHECK}/$i.mounted
   else
