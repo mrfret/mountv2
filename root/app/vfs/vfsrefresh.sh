@@ -62,7 +62,7 @@ done
 
 while true; do
 
-if [[ "$( ${VFS_REFRESH} | sed -e 's/h//g')" != 'null' ]]; then
+if [[ ${VFS_REFRESH} != 'null' ]]; then
    drivecheck
    sleep ${VFS_REFRESH}
 fi
