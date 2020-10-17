@@ -50,7 +50,7 @@ mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter
 for i in ${mounts[@]}; do
   run=$(ls /mnt/drive-$i/ | wc -l)
   pids="$(ps -ef | grep '$i:' | head -n 1 | grep -v grep | awk '{print $1}' | wc -l)"
-  if [[ "$run" != '0' && "$pids" != '0- ]]; then
+  if [[ "$run" != '0' && "$pids" != '0' ]]; then
      refresh
   else
      sleep 30
