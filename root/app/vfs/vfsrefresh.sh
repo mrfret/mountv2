@@ -28,6 +28,7 @@ for i in ${mounts[@]}; do
   bash ${SRC}/$i-rc-file.sh
   chmod a+x ${SRC}/$i-rc-file.sh
   chown -hR abc:abc ${SRC}/$i-rc-file.sh
+  truncate -s 0 /config/logs/*.log
   sleep 5
 done
 }
