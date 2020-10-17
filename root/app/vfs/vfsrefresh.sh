@@ -26,9 +26,7 @@ while true; do
       break && sleep 5
   fi
 done
-
 SRC=/config/rc-refresh
-SCACHE=/tmp/rclone_cache
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
@@ -38,9 +36,7 @@ for i in ${mounts[@]}; do
   run=$(ls -la /mnt/drive-$i/ | wc -l)
   pids=$(ps -ef | grep '$i' | head -n 1 | awk '{print $1}')
   if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
-     bash ${SRC}/$i-rc-file.sh
-     chmod a+x ${SRC}/$i-rc-file.sh
-     chown -hR abc:abc ${SRC}/$i-rc-file.sh
+     /bin/bash ${SRC}/$i-rc-file.sh && chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
      truncate -s 0 /config/logs/*.log
      sleep 5
   else
@@ -48,11 +44,9 @@ for i in ${mounts[@]}; do
   fi
 done
 }
-
 while true; do
    if [[ ${VFS_REFRESH} != '0' ]]; then
-      drivecheck
-      sleep ${VFS_REFRESH}
+      drivecheck && sleep ${VFS_REFRESH}
    else
       break && sleep ${VFS_REFRESH}
    fi
