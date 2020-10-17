@@ -74,18 +74,20 @@ filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
 for i in ${mounts[@]}; do
-if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) ]; then
-    fusermount -uz /mnt/drive-$i >>/dev/null
-    fusermount -uz /mnt/unionfs >>/dev/null
+  run=$(ls /mnt/drive-$i/ | wc -l)
+  pids="$(ps -ef | grep '$i:' | head -n 1 | grep -v grep | awk '{print $1}' | wc -l)"
+  if [[ "$run" != '0' && "$pids" != '0' ]]; then
+    truncate -s 2 ${SCHECK}/$i.mounted
+    echo "last check $(date)" > ${SCHECK}/$i.mounted
+  else
+    fusermount -uz /mnt/drive-$i >> /dev/null
+    kill -9 $(pgrep mergerfs)
+    fusermount -uz /mnt/unionfs >> /dev/null
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
-    bash ${SRC}/$i-rc-file.sh
     sleep 3
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     startupdocker
-  else
-    truncate -s 2 ${SCHECK}/$i.mounted
-    echo "last check $(date)" > ${SCHECK}/$i.mounted
   fi
 done
 }
@@ -106,7 +108,6 @@ for i in ${mounts[@]}; do
     mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
     mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
     bash ${SMOUNT}/$i-mount.sh
-    bash ${SRC}/$i-rc-file.sh
     sleep 3
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
@@ -138,9 +139,8 @@ log "MERGERFS PID: ${MERGERFS_PID}"
 while true; do
   MERGERFS_PID=$(pgrep mergerfs)
   if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     # /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
-     startupdocker
      checkmountstatus
+     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
   fi
   checkmountstatus
   echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
