@@ -17,13 +17,15 @@ chmod a+x /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
           /app/startupp-mounts.sh \
           /app/checkmounts.sh \
-          /app/mountsize/mountsize.sh
+          /app/mountsize/mountsize.sh \
+          /app/vfs/vfsrefresh.sh 
 
 chown -hR abc:abc /app/functions/functions.sh \
           /app/update-alpine/update-alpine.sh \
           /app/startupp-mounts.sh \
           /app/checkmounts.sh \
-          /app/mountsize/mountsize.sh
+          /app/mountsize/mountsize.sh \
+          /app/vfs/vfsrefresh.sh
 
 chown -R abc:abc /run \
           /var/lib/nginx \
