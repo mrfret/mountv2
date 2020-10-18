@@ -34,7 +34,7 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 for i in ${mounts[@]}; do
   run=$(ls -la /mnt/drive-$i/ | wc -l)
-  pids=$(ps -ef | grep '$i' | head -n 1 | awk '{print $1}')
+  pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
   if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
      /bin/bash ${SRC}/$i-rc-file.sh && chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
      truncate -s 0 /config/logs/*.log
