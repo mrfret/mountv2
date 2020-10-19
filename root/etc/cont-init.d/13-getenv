@@ -23,7 +23,7 @@ else
    UAGENT=${UAGENT}
 fi
 rcloneenv=/config/scripts/rclone.env
-if [[ ! -f ${rcloneenv} ]]; then
+if [[ ! -f "${rcloneenv}" ]]; then
 echo -e "DRIVE_TRASH=${DRIVE_TRASH:-false}
 DIR_CACHE_TIME=${DIR_CACHE_TIME:-48h}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-48h}
@@ -40,11 +40,7 @@ LOGLEVEL=${LOGLEVEL:-ERROR}
 LOGLEVEL_RC=${LOGLEVEL_RC:-INFO}
 TZ=${TZ:-UTC}
 DRIVE_CHUNK_SIZE=${DRIVE_CHUNK_SIZE:-128M}
-UAGENT=${UAGENT}" " >/config/scripts/discord.env
-echo -e "DISCORD_WEBHOOK_URL=$DISCORD_WEBHOOK_URL:-null}
-DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE:-https://i.imgur.com/MZYwA1I.png}
-DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE:-RCLONE}
-DISCORD_EMBED_TITEL=${DISCORD_EMBED_TITEL:-Mount_Message}" >/config/scripts/discord.env
+UAGENT=${UAGENT}" " >> /config/scripts/discord.env
 else
   echo "-->> -------------------- <<--"
   echo "     --> used stored <--  <<--"
@@ -52,6 +48,20 @@ else
   echo "        discord.env       <<--"
   echo "-->> -------------------- <<--"
 fi
+
+discordenv=/config/scripts/discord.env
+if [[ ! -f "${discordenv}" ]]; then
+echo -e "DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-null}
+DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE:-https://i.imgur.com/MZYwA1I.png}
+DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE:-RCLONE}
+DISCORD_EMBED_TITEL=${DISCORD_EMBED_TITEL:-Mount_Message}" >> /config/scripts/discord.env
+else
+  echo "-->> -------------------- <<--"
+  echo "     --> used stored <--  <<--"
+  echo "         discord.env      <<--"
+  echo "-->> -------------------- <<--"
+fi
+
 ##export TZdate
 apk --quiet --no-cache --no-progress add tzdata
 export TZ=${TZ}
