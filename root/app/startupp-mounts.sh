@@ -78,13 +78,14 @@ mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter
 for i in ${mounts[@]}; do
   run=$(ls -la /mnt/drive-$i/ | wc -l)
   pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
-  if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
+  if [ "$pids" ] && [ "$run" != '0' ]; then
     truncate -s 2 ${SCHECK}/$i.mounted
     echo "last check $(date)" > ${SCHECK}/$i.mounted
   else
     fusermount -uz /mnt/drive-$i >> /dev/null
-    kill -9 $(pgrep mergerfs)
-    fusermount -uz /mnt/unionfs >> /dev/null
+    MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+    kill -15 ${MERGERFS_PID}
+    fusermount -uzq /mnt/unionfs >> /dev/null
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
     sleep 3
@@ -135,16 +136,18 @@ else
    sleep 30
 fi
 
-MERGERFS_PID=$(pgrep mergerfs)
-log "MERGERFS PID: ${MERGERFS_PID}"
+MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+log "PID OF MERGERFS = ${MERGERFS_PID}"
 
 while true; do
-  MERGERFS_PID=$(pgrep mergerfs)
-  if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
+  MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+  if [ "${MERGERFS_PID}" ]; then
+     echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
      checkmountstatus
-     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+ else 
+     checkmountstatus
+     ###/usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
   fi
-  checkmountstatus
-  echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
+  ##checkmountstatus
   sleep 10
 done
