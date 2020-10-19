@@ -45,7 +45,6 @@ else
   echo "-->> -------------------- <<--"
   echo "     --> used stored <--  <<--"
   echo "         rclone.env       <<--"
-  echo "        discord.env       <<--"
   echo "-->> -------------------- <<--"
 fi
 discordenv=/config/env/discord.env
