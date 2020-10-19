@@ -11,6 +11,7 @@ chown -hR abc:abc  \
           /config \
           /mnt \
           /config/rclone \
+          /config/env \
           /root
 
 chmod a+x /app/functions/functions.sh \
