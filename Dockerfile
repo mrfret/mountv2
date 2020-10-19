@@ -9,12 +9,7 @@
 ######################################################
 FROM alpine:latest
 LABEL Maintainer="MrDooB" \
-      Description="Container with rclone and auto mounting drives."
-
-ENV DISCORD_WEBHOOK_URL=null \
-    DISCORD_ICON_OVERRIDE="https://i.imgur.com/MZYwA1I.png" \
-    DISCORD_NAME_OVERRIDE="RCLONE" \
-    DISCORD_EMBED_TITEL="Mount Message"
+      Description="Container incl rclone/mergerfs and auto mounting drives."
 
 COPY root/ /
 
