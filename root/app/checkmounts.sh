@@ -24,22 +24,23 @@ config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
-function checkmergerfs() {
-MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
-if [ ! -z "${MERGERFS_PID}" ]; then
-   sleep 5
-else
-   sleep 5
-   log "waiting for running megerfs"
-   checkmergerfs 
-fi
-}
-checkmergerfs
+
+while true; do
+   MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+   if [[ "${MERGERFS_PID}" ]]; then
+      break
+   else
+      sleep 5
+      log "waiting for running megerfs"
+      continue
+  fi
+done
+
 while true; do
  for i in ${mounts[@]}; do
   run=$(ls -la /mnt/drive-$i/ | wc -l)
   pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
-  if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
+  if [ "${pids}" ] && [ "$run" != '0' ]; then
      log $i "-> is mounted and works <- [Mount]"
   else
      ENV="/config/env/discord.env"
