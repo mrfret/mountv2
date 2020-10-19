@@ -43,9 +43,11 @@ while true; do
          MERGERFS_PID=$(pgrep mergerfs)
          log "MERGERFS_PID: ${MERGERFS_PID}"
          if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-            DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
-            DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
-            DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
+            ENV="/config/scripts/discord.env"
+            DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
+            DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
+            DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
+            DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
             DISCORD="/config/discord/failed.discord"
             if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
                echo $i "[ WARNING] MERGERFS FAILED [ WARNING ]" >"${DISCORD}"
