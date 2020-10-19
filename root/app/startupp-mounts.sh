@@ -54,11 +54,11 @@ filter="$1"
 config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 DISCORD="/config/discord/startup.discord"
-ENV=/config/scripts/discord.env
-DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" '$ENV' | sed "s#DISCORD_WEBHOOK.*=##")
-DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" '$ENV' | sed "s#DISCORD_ICON_OVERRIDE.*=##")
-DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" '$ENV' | sed "s#DISCORD_NAME_OVERRIDE.*=##")
-DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" '$ENV' | sed "s#DISCORD_EMBED_TITEL.*=##")
+ENV="/config/scripts/discord.env"
+DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
+DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
+DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
+DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
 if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
    echo "[Mount] -> Starting $i Mount $(date) <- [Mount]" >"${DISCORD}"
    msg_content=$(cat "${DISCORD}")
@@ -116,7 +116,7 @@ done
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
-echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
+echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
 /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
