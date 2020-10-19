@@ -10,9 +10,10 @@ function logdocker() {
     echo "[DOCKER] ${1}"
 }
 function startupdocker() {
-SERVICE=$(pgrep mergerfs | wc -l)
-if [[ ${SERVICE} -ne "0" ]]; then
-    restart_container
+MERGERFS_PID=$(ps -ef | grep 'mergerfs -o' | head -n 1 | awk '{print $1}')
+#SERVICE=$(pgrep mergerfs)
+if [ "${MERGERFS_PID}" ]; then
+   restart_container
 else
     wait_for
 fi
