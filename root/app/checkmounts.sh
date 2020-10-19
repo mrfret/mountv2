@@ -11,7 +11,7 @@ function logfailed() {
     echo "[Mount] [FAILED] ${1} ${2}"
 }
 ## function source start
-ENV="/config/scripts/discord.env"
+ENV="/config/env/discord.env"
 DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
 DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
 DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
@@ -25,43 +25,36 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
 function checkmergerfs() {
-MERGERFS_PID=$(pgrep mergerfs)
-if [ -z "${MERGERFS_PID}" ]; then
-    sleep 5
-    checkmergerfs
-    log "waiting for running megerfs"
+MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+if [ ! -z "${MERGERFS_PID}" ]; then
+   sleep 5
+else
+   sleep 5
+   log "waiting for running megerfs"
+   checkmergerfs 
 fi
 }
 checkmergerfs
 while true; do
  for i in ${mounts[@]}; do
-  command_running=$(ls /mnt/drive-$i/ | wc -l)
-  if [ "$command_running" == '0' ]; then
-     log "-> second check of running mount [Mount] <-" $i
-     command_exist_pid=/config/scripts/$i.mounted
-     if [ -f "$command_exist_pid" ]; then
-         MERGERFS_PID=$(pgrep mergerfs)
-         log "MERGERFS_PID: ${MERGERFS_PID}"
-         if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-            ENV="/config/scripts/discord.env"
-            DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
-            DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
-            DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
-            DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
-            DISCORD="/config/discord/failed.discord"
-            if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-               echo $i "[ WARNING] MERGERFS FAILED [ WARNING ]" >"${DISCORD}"
-               msg_content=$(cat "${DISCORD}")
-               curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
-            else
-               logfailed $i " MERGERFS WORKS <- [Mount] "
-            fi
-         fi
-     else
-         logfailed $i " not mounted or failed <- [Mount] "
-     fi
-  else
+  run=$(ls -la /mnt/drive-$i/ | wc -l)
+  pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
+  if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
      log $i "-> is mounted and works <- [Mount]"
+  else
+     ENV="/config/env/discord.env"
+     DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
+     DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
+     DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
+     DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
+     DISCORD="/config/discord/failed.discord"
+     if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
+        echo -e "[ WARNING] $i FAILED [ WARNING ]" >>"${DISCORD}"
+        msg_content=$(cat "${DISCORD}")
+        curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
+     else
+         logfailed $i " FAILED [ WARNING ]" "
+     fi
   fi
  done
  sleep 5
