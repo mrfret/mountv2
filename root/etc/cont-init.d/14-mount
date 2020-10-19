@@ -5,7 +5,7 @@
 function log() {
 echo "[Mount] ${1}"
 }
-source /config/scripts/rclone.env
+source /config/env/rclone.env
 echo "
 -------------------------------------------------------
    DOCKER ENV vars
@@ -65,7 +65,9 @@ for i in ${mounts[@]}; do
   if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
     fusermount -uzq /mnt/drive-$i
   fi
-  rm -rf ${SMOUNT}/$i-mount.sh && rm -rf ${SMOUNT}/$i-rc-file.sh
+  rm -rf ${SMOUNT}/$i-mount.sh
+  rm -rf ${SRC}/$i-rc-file.sh
+  rm -rf ${SMOUNT}/$i-rc-file.sh
   touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/**.log >> /dev/null
@@ -119,9 +121,7 @@ rclone rc vfs/refresh recursive=true \\
        --rc-addr=localhost:${RC_ADDRESS} \\
        --log-file=/config/logs/rc-refresh-$i.log \\
        --log-level=${LOGLEVEL_RC} \n
-##\n
 #<EOF>#" >> ${SRC}/$i-rc-file.sh
-
     chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
     chown -hR abc:abc /tmp/rclone_cache/
     log "-->> rclone rc refresh file created for $i <<--"
