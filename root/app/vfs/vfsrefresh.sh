@@ -9,7 +9,7 @@
 # shellcheck disable=SC2006
 source /config/scripts/rclone.env
 VFS_REFRESH=${VFS_REFRESH}
-flags=/config/scripts/rclone.env
+flags=/config/env/rclone.env
 
 if [[ $(cat '${flags}' | grep 'VFS_REFRESH' | wc -l) != `1` ]]; then
    VFS_REFRESH=${VFS_REFRESH:-48h}
