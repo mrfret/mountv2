@@ -7,7 +7,7 @@
 # shellcheck disable=SC2086
 # shellcheck disable=SC2002
 # shellcheck disable=SC2006
-source /config/scripts/rclone.env
+source /config/env/rclone.env
 VFS_REFRESH=${VFS_REFRESH}
 flags=/config/env/rclone.env
 
