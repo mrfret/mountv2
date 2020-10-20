@@ -85,7 +85,7 @@ for i in ${mounts[@]}; do
   else
     fusermount -uz /mnt/drive-$i >> /dev/null
     MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
-    kill -15 ${MERGERFS_PID}
+    kill ${MERGERFS_PID}
     fusermount -uzq /mnt/unionfs >> /dev/null
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
@@ -147,7 +147,7 @@ while true; do
      checkmountstatus
  else 
      checkmountstatus
-     ###/usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
   fi
   ##checkmountstatus
   sleep 10
