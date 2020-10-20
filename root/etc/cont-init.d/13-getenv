@@ -40,7 +40,7 @@ LOGLEVEL=${LOGLEVEL:-ERROR}
 LOGLEVEL_RC=${LOGLEVEL_RC:-INFO}
 TZ=${TZ:-UTC}
 DRIVE_CHUNK_SIZE=${DRIVE_CHUNK_SIZE:-128M}
-UAGENT=${UAGENT}" " >> /config/env/rclone.env
+UAGENT=${UAGENT}" >> /config/env/rclone.env
 else
   echo "-->> -------------------- <<--"
   echo "     --> used stored <--  <<--"
