@@ -9,20 +9,6 @@ function log() {
 function logdocker() {
     echo "[DOCKER] ${1}"
 }
-function startupdocker() {
-MERGERFS_PID=$(ps -ef | grep 'mergerfs -o' | head -n 1 | awk '{print $1}')
-SERVICE=$(pgrep mergerfs)
-if [ "${MERGERFS_PID}" != "${SERVICE}" ]; then
-   wait_for
-else 
-   restart_container
-fi
-}
-function wait_for() {
-  logdocker " -> wait for mounted drives <- "
-  sleep 5
-  startupdocker
-}
 function restart_container() {
 logdocker " -------------------------------"
 logdocker " -->    RESTART DOCKER      <---"
@@ -49,25 +35,6 @@ logdocker " -->    RESTART DOCKER      <---"
 logdocker " -->       FINISHED         <---"
 logdocker " -------------------------------"
 }
-function discord_send() {
-IFS=$'\n'
-filter="$1"
-config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
-DISCORD="/config/discord/startup.discord"
-ENV="/config/env/discord.env"
-DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
-DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
-DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
-DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
-if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-   echo "[Mount] -> Starting $i Mount $(date) <- [Mount]" >"${DISCORD}"
-   msg_content=$(cat "${DISCORD}")
-   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
-else
-   log " Starting $i Mount $(date) <- [Mount]"
-fi
-}
 function checkmountstatus() {
 SMOUNT=/config/scripts
 SRC=/config/rc-refresh
@@ -83,19 +50,19 @@ for i in ${mounts[@]}; do
     truncate -s 2 ${SCHECK}/$i.mounted
     echo "last check $(date)" > ${SCHECK}/$i.mounted
   else
-    fusermount -uz /mnt/drive-$i >> /dev/null
-    MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+    fusermount -uzq /mnt/drive-$i >> /dev/null
+    MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
     kill ${MERGERFS_PID}
     fusermount -uzq /mnt/unionfs >> /dev/null
+    /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
     log "-> RE - Mounting $i <-"
     bash ${SMOUNT}/$i-mount.sh
     sleep 3
     echo "remounted since $(date)" > ${SCHECK}/$i.mounted
-    startupdocker
+    restart_container
   fi
 done
 }
-#### END OF FUNCTION #####
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SRC=/config/rc-refresh
@@ -115,7 +82,7 @@ for i in ${mounts[@]}; do
     sleep 3
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
-sleep 5
+#### MERGERFS ####
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
 echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
@@ -127,7 +94,7 @@ sleep 5
 dockersock=$(ls -la /var/run/docker.sock | wc -l)
 #### RESTART DOCKER #### 
 if [[ ${dockersock} == '1' ]]; then
-   startupdocker
+   restart_container
 else
    sleep 1
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
@@ -136,19 +103,17 @@ else
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    sleep 30
 fi
-
-MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+#### CHECK DOCKER.SOCK ####
+MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
 log "PID OF MERGERFS = ${MERGERFS_PID}"
-
+#### END OF FUNCTION #####
 while true; do
-  MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+  MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
   if [ "${MERGERFS_PID}" ]; then
      echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
      checkmountstatus
  else 
-     checkmountstatus
-     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+     exit 0
   fi
-  ##checkmountstatus
   sleep 10
 done
