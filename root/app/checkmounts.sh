@@ -26,7 +26,7 @@ mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter
 ## function source end
 
 while true; do
-   MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs' | head -n 1 | awk '{print $1}')
+   MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
    if [[ "${MERGERFS_PID}" ]]; then
       break
    else
