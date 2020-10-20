@@ -35,6 +35,25 @@ logdocker " -->    RESTART DOCKER      <---"
 logdocker " -->       FINISHED         <---"
 logdocker " -------------------------------"
 }
+function discord_send() {
+IFS=$'\n'
+filter="$1"
+config=/config/rclone/rclone-docker.conf
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+DISCORD="/config/discord/startup.discord"
+ENV="/config/env/discord.env"
+DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
+DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
+DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
+DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
+if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
+   echo "[Mount] -> Starting $i Mount $(date) <- [Mount]" >"${DISCORD}"
+   msg_content=$(cat "${DISCORD}")
+   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
+else
+   log " Starting $i Mount $(date) <- [Mount]"
+fi
+}
 function checkmountstatus() {
 SMOUNT=/config/scripts
 SRC=/config/rc-refresh
@@ -50,16 +69,11 @@ for i in ${mounts[@]}; do
     truncate -s 2 ${SCHECK}/$i.mounted
     echo "last check $(date)" > ${SCHECK}/$i.mounted
   else
+    kill -15 "$run" >> /dev/null
     fusermount -uzq /mnt/drive-$i >> /dev/null
-    MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
-    kill ${MERGERFS_PID}
+    kill -15 "$(ps -ef | grep 'mergerfs -o' | head -n 1 | awk '{print $1}')"
     fusermount -uzq /mnt/unionfs >> /dev/null
-    /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
-    log "-> RE - Mounting $i <-"
-    bash ${SMOUNT}/$i-mount.sh
-    sleep 3
-    echo "remounted since $(date)" > ${SCHECK}/$i.mounted
-    restart_container
+    exit 0
   fi
 done
 }
@@ -104,7 +118,7 @@ else
    sleep 30
 fi
 #### CHECK DOCKER.SOCK ####
-MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
+MERGERFS_PID=$(ps -ef | grep 'mergerfs -o' | head -n 1 | awk '{print $1}')
 log "PID OF MERGERFS = ${MERGERFS_PID}"
 #### END OF FUNCTION #####
 while true; do
