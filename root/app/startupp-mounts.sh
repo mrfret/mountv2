@@ -11,11 +11,11 @@ function logdocker() {
 }
 function startupdocker() {
 MERGERFS_PID=$(ps -ef | grep 'mergerfs -o' | head -n 1 | awk '{print $1}')
-#SERVICE=$(pgrep mergerfs)
-if [ "${MERGERFS_PID}" ]; then
+SERVICE=$(pgrep mergerfs)
+if [ "${MERGERFS_PID}" != "${SERVICE}" ]; then
+   wait_for
+else 
    restart_container
-else
-    wait_for
 fi
 }
 function wait_for() {
