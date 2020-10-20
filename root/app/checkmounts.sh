@@ -54,7 +54,7 @@ while true; do
         msg_content=$(cat "${DISCORD}")
         curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
      else
-         logfailed $i " FAILED [ WARNING ]" "
+         logfailed $i " FAILED [ WARNING ]"
      fi
   fi
  done
