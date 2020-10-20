@@ -11,8 +11,6 @@ echo "
    DOCKER ENV vars
 -------------------------------------------------------
    TimeZone                       ${TZ}
-   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
-   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
    DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
    DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
    DRIVE_TRASH                    ${DRIVE_TRASH}
@@ -29,8 +27,16 @@ echo "
    UAGENT                         ${UAGENT}
    PUID                           ${PUID}
    PGID                           ${PGID}
+"
+source /config/env/discord.env
+echo "
+   DISCORD_WEBHOOK_URL            ${DISCORD_WEBHOOK_URL}
+   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
+   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
+   DISCORD_ICON_OVERRIDE          ${DISCORD_ICON_OVERRIDE}
 -------------------------------------------------------
 "
+
 ##### FOLDER START #####
 SMOUNT=/config/scripts
 SRC=/config/rc-refresh
