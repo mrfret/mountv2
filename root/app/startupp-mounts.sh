@@ -122,11 +122,11 @@ MERGERFS_PID=$(ps -ef | grep 'mergerfs -o' | head -n 1 | awk '{print $1}')
 log "PID OF MERGERFS = ${MERGERFS_PID}"
 #### END OF FUNCTION #####
 while true; do
-  MERGERFS_PID=$(ps -ef | grep '/usr/bin/mergerfs -o' | head -n 1 | awk '{print $1}')
+  MERGERFS_PID=$(ps -ef | grep '/mergerfs -o' | head -n 1 | awk '{print $1}')
   if [ "${MERGERFS_PID}" ]; then
      echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
      checkmountstatus
- else 
+  else 
      exit 0
   fi
   sleep 10
