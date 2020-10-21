@@ -8,7 +8,6 @@
 ## add rclone obscure password creater    #
 ## add unencrypt tdrive support           #
 ###########################################
-conf=/config/rclone.conf
 
 add () {
 echo -e "Add new Tdrive^ (y/n)";read -i n yes_yn
@@ -35,21 +34,13 @@ if [ "${yes_yn,,}" == "y" ];then
   exit 0
   fi
   echo -e ""
-  echo -e "    to use serverside actions true or false";echo;read -i n serverside
-  if [ "${serverside,,}" != "" ]; then
-  serverside=$serverside
-  else
-  exit 0
-  fi
-  echo -e ""
-  echo -e ""
 
 echo -e "\n ##add over shell##\n
 [$name]
 type = drive
 client_id = `rclone config show --config=/config/rclone.conf $rem|grep client_id | awk -F' = ' '{print $2}' | head -n 1`
 client_secret = `rclone config show --config=/config/rclone.conf $rem|grep client_secret | awk -F' = ' '{print $2}' | head -n 1`
-server_side_across_configs = $serverside
+server_side_across_configs = true
 scope = drive
 token = `rclone config show --config=/config/rclone.conf $rem|grep token | awk -F' = ' '{print $2}' | head -n 1`
 team_drive = $td" >> /config/rclone.conf
@@ -70,21 +61,14 @@ else
   exit 0
   fi
   echo -e ""
-  echo -e "    to use serverside actions true or false";echo;read -i n serverside
-  if [ "${serverside,,}" != "" ]; then
-  serverside=$serverside
-  else
-  exit 0
-  fi
-  echo -e ""
-  echo -e ""
 
-echo -e "\n ##add over shell##\n
+echo -e "\n 
+##add over shell##\n
 [$name]
 type = drive
 client_id = `rclone config show --config=/config/rclone.conf $rem|grep client_id | awk -F' = ' '{print $2}' | head -n 1 `
 client_secret = `rclone config show --config=/config/rclone.conf $rem|grep client_secret | awk -F' = ' '{print $2}' | head -n 1`
-server_side_across_configs = $serverside
+server_side_across_configs = true
 scope = drive
 token = `rclone config show --config=/config/rclone.conf $rem|grep token | awk -F' = ' '{print $2}' | head -n 1`
 team_drive = $td
@@ -95,7 +79,7 @@ remote = $name:/encrypt
 filename_encryption = standard
 directory_name_encryption = true
 password = `rclone config show --config=/config/rclone.conf $rem|grep password | awk -F' = ' '{print $2}' | head -n 1`
-password2 = `rclone config show --config=/config/rclone.conf $rem|grep password2 | awk -F' = ' '{print $2}' | head -n 1` " >> /config/rclone.conf
+password2 = `rclone config show --config=/config/rclone.conf $rem|grep password2 | awk -F' = ' '{print $2}' | head -n 1`" >> /config/rclone.conf
 rclone mkdir --config=/config/rclone.conf $name:/encrypt
 fi
 }
