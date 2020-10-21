@@ -12,7 +12,7 @@ function logfailed() {
 }
 ## function source start
 ENV="/config/env/discord.env"
-DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
+DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK_URL" "$ENV" | sed "DISCORD_WEBHOOK_URL.*=##")
 DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
 DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
 DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
@@ -44,7 +44,7 @@ while true; do
      log $i "-> is mounted and works <- [Mount]"
   else
      ENV="/config/env/discord.env"
-     DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK" "$ENV" | sed "s#DISCORD_WEBHOOK.*=##")
+     DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK_URL" "$ENV" | sed "DISCORD_WEBHOOK_URL.*=##")
      DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
      DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
      DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
