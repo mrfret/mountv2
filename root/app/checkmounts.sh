@@ -12,10 +12,10 @@ function logfailed() {
 }
 ## function source start
 ENV="/config/env/discord.env"
-DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK_URL" "$ENV" | sed "DISCORD_WEBHOOK_URL.*=##")
-DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
-DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
-DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
+DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK_URL" "$ENV" | sed "s#.*=##")
+DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#.*=##")
+DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#.*=##")
+DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#.*=##")
 DISCORD="/config/discord/failed.discord"
 DISCORD_FOLDER=/config/discord
 IFS=$'\n'
@@ -40,14 +40,14 @@ while true; do
  for i in ${mounts[@]}; do
   run=$(ls -la /mnt/drive-$i/ | wc -l)
   pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
-  if [ "${pids}" ] && [ "$run" != '0' ]; then
+  if [ "${pids}" ]; then
      log $i "-> is mounted and works <- [Mount]"
   else
      ENV="/config/env/discord.env"
-     DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK_URL" "$ENV" | sed "DISCORD_WEBHOOK_URL.*=##")
-     DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#DISCORD_ICON_OVERRIDE.*=##")
-     DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#DISCORD_NAME_OVERRIDE.*=##")
-     DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#DISCORD_EMBED_TITEL.*=##")
+     DISCORD_WEBHOOK_URL=$(grep -e "DISCORD_WEBHOOK_URL" "$ENV" | sed "s#.*=##")
+     DISCORD_ICON_OVERRIDE=$(grep -e "DISCORD_ICON_OVERRIDE" "$ENV" | sed "s#.*=##")
+     DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#.*=##")
+     DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#.*=##")
      DISCORD="/config/discord/failed.discord"
      if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
         echo -e "[ WARNING] $i FAILED [ WARNING ]" >>"${DISCORD}"
