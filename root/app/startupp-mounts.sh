@@ -58,13 +58,13 @@ SRC=/config/rc-refresh
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 for i in ${mounts[@]}; do
     mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
     mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
     mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
     mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
-	if [[ -f "${SMOUNT}/$i-mount.sh" ]]; then
+    if [[ -f "${SMOUNT}/$i-mount.sh" ]]; then
        bash ${SMOUNT}/$i-mount.sh
     fi
     sleep 1
