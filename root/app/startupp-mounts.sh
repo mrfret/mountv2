@@ -64,7 +64,9 @@ for i in ${mounts[@]}; do
     mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
     mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
     mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
-    bash ${SMOUNT}/$i-mount.sh
+	if [[ -f "${SMOUNT}/$i-mount.sh" ]]; then
+       bash ${SMOUNT}/$i-mount.sh
+    fi
     sleep 1
     echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
