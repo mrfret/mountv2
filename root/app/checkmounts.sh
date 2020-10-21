@@ -25,7 +25,7 @@ DISCORDSTART="/config/discord/startup.discord"
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 
 for i in ${mounts[@]}; do
   if [ "$(pgrep -f $i | head -n 1)" ] && [ -e /proc/$(pgrep -f $i | head -n 1) ]; then
@@ -57,14 +57,14 @@ while true; do
     if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
-	   echo "last check $(date)" > ${SCHECK}/$i.mounted
+       echo "last check $(date)" > ${SCHECK}/$i.mounted
     else
        if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
           echo -e "[ WARNING] $i FAILED REMOUNT STARTS NOW [ WARNING ]" >>"${DISCORDFAIL}"
           msg_content=$(cat "${DISCORDFAIL}")
           curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${DISCORD_EMBED_TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
        else
-         logfailed $i " FAILED REMOUNT STARTS NOW [ WARNING ]"
+          logfailed $i " FAILED REMOUNT STARTS NOW [ WARNING ]"
        fi
        fusermount -uz /mnt/drive-$i >>/dev/null
        log "-> RE - Mounting $i <-"
