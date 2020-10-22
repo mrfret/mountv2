@@ -30,7 +30,7 @@ logdocker " -------------------------------"
 rm -rf /tmp/dockers >> /dev/null
 docker ps -aq --format '{{.Names}}' | sed '/^$/d' > /tmp/dockers
 #### LIST SOME DOCKER TO RESTART ####
-containers=$(grep -v -e 'moun' -e 'porta' -e 'trae' -e 'oaut' /tmp/dockers)
+containers=$(grep -E 'ple|arr|emby|jelly' /tmp/dockers)
 for container in $containers; do
 0    docker stop $container >> /dev/null
 done
@@ -77,9 +77,11 @@ for i in ${mounts[@]}; do
     mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
     if [[ -f "${SMOUNT}/$i-mount.sh" ]]; then
        bash ${SMOUNT}/$i-mount.sh
+       echo "mounted since $(date)" > ${SCHECK}/$i.mounted
+    else 
+       echo "cant start mount file for $i drive $(date)" > ${SCHECK}/$i.mounted
     fi
     sleep 1
-    echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
@@ -116,7 +118,7 @@ while true; do
    else
       sleep 5
       ## stop dockers when mergerfs crashed
-
+      crashed
       exit 1
   fi
 done
