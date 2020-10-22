@@ -101,6 +101,7 @@ rclone mount $i: /mnt/drive-$i \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --no-modtime --no-seek \\
     --ignore-errors --use-mmap \\
+    --poll-interval=30s \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
     --drive-use-trash=${DRIVE_TRASH} \\
