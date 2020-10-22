@@ -5,7 +5,7 @@
 config=/config/rclone/rclone-docker.conf
 drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
 checkspace=$(echo $(( ( ${drivespace} ) /3 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
+rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | wc -l)
 endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
 
