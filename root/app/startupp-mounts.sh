@@ -22,6 +22,19 @@ while true; do
   fi
 done
 }
+function crashed() {
+logdocker " -------------------------------"
+logdocker " -->      STOP DOCKER       <---"
+logdocker " -->    MERGERFS CRASHED    <---"
+logdocker " -------------------------------"
+rm -rf /tmp/dockers >> /dev/null
+docker ps -aq --format '{{.Names}}' | sed '/^$/d' > /tmp/dockers
+#### LIST SOME DOCKER TO RESTART ####
+containers=$(grep -v -e 'moun' -e 'porta' -e 'trae' -e 'oaut' /tmp/dockers)
+for container in $containers; do
+0    docker stop $container >> /dev/null
+done
+}
 function restart_container() {
 logdocker " -------------------------------"
 logdocker " -->    RESTART DOCKER      <---"
@@ -41,8 +54,6 @@ for container in $containers; do
     logdocker " -->> Starting $container <<-- "
     docker start $container >> /dev/null
 done
-apk del docker-cli --quiet --no-progress && apk del --quiet --clean-protected --no-progress
-rm -rf /tmp/dockersrm -rf /tmp/dockers
 logdocker " -------------------------------"
 logdocker " -->    RESTART DOCKER      <---"
 logdocker " -->       FINISHED         <---"
@@ -101,10 +112,11 @@ while true; do
    if [ "${MERGERFS_PID}" ] && [ -e /proc/${MERGERFS_PID} ]; then
       sleep 5
       echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
-      # checkmountstatus
       continue
    else
       sleep 5
+      ## stop dockers when mergerfs crashed
+
       exit 1
   fi
 done
