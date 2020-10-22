@@ -1,8 +1,9 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
-# Copyright (c) 2019, MrDoob
+# Copyright (c) 2020, MrDoob
 # All rights reserved.
 # shellcheck disable=SC2086
+# shellcheck disable=SC2006
 function log() {
     echo "[Mount] ${1}"
 }
@@ -16,51 +17,39 @@ while true; do
       restart_container
       break
    else
-      sleep 5
-      log "waiting for running megerfs"
+      sleep 5 && log "waiting for running megerfs"
       continue
   fi
 done
 }
 function crashed() {
 logdocker " -------------------------------"
-logdocker " -->      STOP DOCKER       <---"
+logdocker " -->      STOP DOCKERS      <---"
 logdocker " -->    MERGERFS CRASHED    <---"
 logdocker " -------------------------------"
-rm -rf /tmp/dockers >> /dev/null
-docker ps -aq --format '{{.Names}}' | sed '/^$/d' > /tmp/dockers
-#### LIST SOME DOCKER TO RESTART ####
-containers=$(grep -E 'ple|arr|emby|jelly' /tmp/dockers)
-for container in $containers; do
-0    docker stop $container >> /dev/null
-done
+container=$(docker ps -aq --format '{{.Names}}' | sed '/^$/d' | grep -E 'ple|arr|emby|jelly')
+docker stop $container >> /dev/null
+sleep 2
 }
 function restart_container() {
 logdocker " -------------------------------"
-logdocker " -->    RESTART DOCKER      <---"
-logdocker " -->         START          <---"
+logdocker " -->   RESTART DOCKER PART  <---"
+logdocker " -->         STARTED        <---"
 logdocker " -------------------------------"
-apk add docker-cli --quiet --no-cache --force-refresh --no-progress
-docker ps -aq --format '{{.Names}}' | sed '/^$/d' > /tmp/dockers
+container=$(docker ps -aq --format '{{.Names}}' | sed '/^$/d' | grep -E 'ple|arr|emby|jelly')
+docker stop $container >> /dev/null
+logdocker " -->> sleeping 5secs for graceful stopped containers <<--"
+sleep 5
+container=$(docker ps -aq --format '{{.Names}}' | sed '/^$/d' | grep -E 'ple|arr|emby|jelly')
 #### LIST SOME DOCKER TO RESTART ####
-containers=$(grep -E 'ple|arr|emby|jelly' /tmp/dockers)
-for container in $containers; do
-    logdocker " -->> Stopping $container <<-- "
-    docker stop $container >> /dev/null
-done
-    logdocker " -->> sleeping 5secs for graceful stopped containers <<--"
-    sleep 5
-for container in $containers; do
-    logdocker " -->> Starting $container <<-- "
-    docker start $container >> /dev/null
-done
+docker start $container >> /dev/null
 logdocker " -------------------------------"
-logdocker " -->    RESTART DOCKER      <---"
-logdocker " -->       FINISHED         <---"
+logdocker " -->   RESTART DOCKER PART  <---"
+logdocker " -->        FINISHED        <---"
 logdocker " -------------------------------"
 }
-
 #### END OF FUNCTION #####
+apk add docker-cli --quiet --no-cache --force-refresh --no-progress
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SCHECK=/config/check
@@ -86,10 +75,10 @@ done
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
-echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
+echo -e "-o statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
-/usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+/usr/bin/mergerfs ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 sleep 5
 #### CHECK DOCKER.SOCK ####
 dockersock=$(curl --silent --output /dev/null --show-error --fail --unix-socket /var/run/docker.sock http://localhost/images/json)
@@ -112,13 +101,10 @@ log "MERGERFS PID: ${MERGERFS_PID}"
 while true; do
    MERGERFS_PID=$(pgrep mergerfs)
    if [ "${MERGERFS_PID}" ] && [ -e /proc/${MERGERFS_PID} ]; then
-      sleep 5
-      echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
+      sleep 5 && echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
       continue
    else
-      sleep 5
-      ## stop dockers when mergerfs crashed
-      crashed
-      exit 1
+      sleep 5 && crashed
+      exit 0
   fi
 done
