@@ -20,13 +20,13 @@ DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#.*=##")
 DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#.*=##")
 DISCORDFAIL="/config/discord/failed.discord"
 DISCORDSTART="/config/discord/startup.discord"
-
+RCLONE_CHECK=$(rclone lsf $i:.mountcheck-$i --config=${config})
+MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
 ## function source end
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
-
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d')
 for i in ${mounts[@]}; do
   if [ "$(pgrep -f $i | head -n 1)" ] && [ -e /proc/$(pgrep -f $i | head -n 1) ]; then
      sleep 2 && break
@@ -54,7 +54,7 @@ done
 
 while true; do
   for i in ${mounts[@]}; do
-    if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ]; then
+    if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ] && [ -f "{RCLONE_CHECK}" -a -f "${MOUNT_CHECK}" ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
        echo "last check $(date)" > ${SCHECK}/$i.mounted
@@ -72,6 +72,6 @@ while true; do
        echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     fi
   done
-  sleep 5
+  sleep 1h
 done
 #>EOF<#
