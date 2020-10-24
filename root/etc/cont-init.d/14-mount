@@ -149,13 +149,11 @@ echo -e "#!/usr/bin/with-contenv bash
 ##########################
 #\n
 rclone rc operations/rmdirs \\
-       --config=${config} \\
-       --rc-no-auth \\
+       --rc-no-auth --leave-root \\
        fs=$i: remote= \\
        --rc-addr=localhost:${RC_ADDRESS} \n
 #\n
 rclone rc operations/cleanup \\
-       --config=${config} \\
        --rc-no-auth \\
        fs=$i: remote= \\
        --rc-addr=localhost:${RC_ADDRESS} \n
