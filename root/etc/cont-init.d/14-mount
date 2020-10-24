@@ -164,5 +164,4 @@ rclone rc operations/cleanup \\
     chown -hR abc:abc /tmp/rclone_cache/
     log "-->> rclone rc auto purge empty folder created for $i <<--"
 done
-
 #EOF#
