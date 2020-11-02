@@ -20,8 +20,6 @@ DISCORD_NAME_OVERRIDE=$(grep -e "DISCORD_NAME_OVERRIDE" "$ENV" | sed "s#.*=##")
 DISCORD_EMBED_TITEL=$(grep -e "DISCORD_EMBED_TITEL" "$ENV" | sed "s#.*=##")
 DISCORDFAIL="/config/discord/failed.discord"
 DISCORDSTART="/config/discord/startup.discord"
-RCLONE_CHECK=$(rclone lsf $i:.mountcheck-$i --config=${config})
-MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
 ## function source end
 IFS=$'\n'
 filter="$1"
@@ -54,7 +52,9 @@ done
 
 while true; do
   for i in ${mounts[@]}; do
-    if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ] && [ -f "{RCLONE_CHECK}" -a -f "${MOUNT_CHECK}" ]; then
+    RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config} | wc -l)
+    MOUNT_CHECK=$(ls -la /mnt/drive-$i/.mountcheck-$i | wc -l)
+    if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ] && [ ${RCLONE_CHECK} == ${MOUNT_CHECK} ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
        echo "last check $(date)" > ${SCHECK}/$i.mounted
@@ -72,6 +72,6 @@ while true; do
        echo "remounted since $(date)" > ${SCHECK}/$i.mounted
     fi
   done
-  sleep 1h
+  sleep 60
 done
 #>EOF<#

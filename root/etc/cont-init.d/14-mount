@@ -77,7 +77,7 @@ for i in ${mounts[@]}; do
   rm -rf ${SRC}/$i-rc-file.sh
   rm -rf ${SMOUNT}/$i-rc-file.sh
   rm -rf ${SRP}/$i-rc-file.sh
-  rclone touch $i:.mountcheck-$i --config=${config} --localtime >> /dev/null
+  /usr/bin/rclone touch $i:/.mountcheck-$i --config=${config} --localtime >> /dev/null
   touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/**.log >> /dev/null
