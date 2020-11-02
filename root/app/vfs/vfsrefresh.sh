@@ -8,7 +8,7 @@
 # shellcheck disable=SC2002
 # shellcheck disable=SC2006
 
-if [[ $(grep -e 'VFS_REFRESH' /config/env/rclone.env | wc -l) != `1` ]]; then
+if [[ $(grep -e 'VFS_REFRESH' /config/env/rclone.env | wc -l) != 1 ]]; then
    VFS_REFRESH=${VFS_REFRESH:-48h}
 else
    VFS_REFRESH=${VFS_REFRESH}
@@ -17,7 +17,7 @@ fi
 function drivecheck() {
 while true; do
   MERGERFS_PID=$(pgrep mergerfs)
-  if [ -z "${MERGERFS_PID}" ]; then
+  if [ "${MERGERFS_PID}" ]; then
       sleep 5 && continue
    else
       break && sleep 5
