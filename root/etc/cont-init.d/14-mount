@@ -108,7 +108,6 @@ rclone mount $i: /mnt/drive-$i \\
     --poll-interval=30s \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
-    --drive-use-trash=${DRIVE_TRASH} \\
     --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \\
