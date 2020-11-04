@@ -16,7 +16,7 @@ function drivecheck() {
 while true; do
   MERGERFS_PID=$(pgrep mergerfs)
   if [ "${MERGERFS_PID}" ]; then
-      sleep .5 && continue
+      sleep 5 && continue
    else
       break && sleep 5
   fi
@@ -33,7 +33,7 @@ for i in ${mounts[@]}; do
   if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
      /bin/bash ${SRP}/$i-rc-file.sh && chmod a+x ${SRP}/$i-rc-file.sh && chown -hR abc:abc ${SRP}/$i-rc-file.sh
      truncate -s 0 /config/logs/*.log
-     sleep .5
+     sleep 5
   else
      sleep 60
   fi
