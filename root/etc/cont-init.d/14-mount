@@ -13,7 +13,6 @@ echo "
    TimeZone                       ${TZ}
    DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
    DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
-   DRIVE_TRASH                    ${DRIVE_TRASH}
    VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
    VFS_READ_CHUNK_SIZE            ${VFS_READ_CHUNK_SIZE}
    VFS_CACHE_MAX_AGE              ${VFS_CACHE_MAX_AGE}
@@ -45,20 +44,21 @@ SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
 SCACHE=/tmp/rclone_cache
 DFOLD=/config/discord
-rm -rf /config/logs/ && mkdir -p /config/logs
+LOGS=/config/logs 
+rm -rf ${LOGS} && mkdir -p ${LOGS} && chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
+rm -rf ${SRC} && mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
+rm -rf ${SRP} && mkdir -p ${SRP} && chown -hR abc:abc ${SRP} && chmod -R 775 ${SRP}
+rm -rf ${SCACHE} && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+rm -rf ${DFOLD} && mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
+
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
-mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
-mkdir -p ${SRP} && chown -hR abc:abc ${SRP} && chmod -R 775 ${SRP}
 mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
-mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
-mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
+
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
-rm -rf /tmp/RC_ADDRESS && rm -rf ${SMOUNT}/rc-refresh-**.sh
-rm -rf ${SRC}/rc-refresh-**.sh
+rm -rf /tmp/RC_ADDRESS && echo "5572" > /tmp/RCPORT
 ## function source start
-echo "5572" > /tmp/RCPORT
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
@@ -85,7 +85,7 @@ for i in ${mounts[@]}; do
   dday=$(date)
   RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
   echo ${RC_ADDRESS} >/tmp/RCPORT
-  echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
+  echo -n "/mnt/drive-$i=RW:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
@@ -100,12 +100,11 @@ rclone mount $i: /mnt/drive-$i \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
-    --drive-skip-gdocs --timeout=1h \\
+    --timeout=1h \\
     --cache-dir=/tmp/rclone_cache/ \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --no-modtime --no-seek \\
-    --ignore-errors --use-mmap \\
-    --poll-interval=30s \\
+    --ignore-errors --poll-interval=30s \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
     --buffer-size=${BUFFER_SIZE} \\
@@ -129,8 +128,7 @@ echo -e "#!/usr/bin/with-contenv bash
 ##########################
 #\n
 rclone rc vfs/refresh recursive=true \\
-       --config=${config} --rc-no-auth \\
-       --rc-addr=localhost:${RC_ADDRESS} \\
+       --rc-no-auth --rc-addr=localhost:${RC_ADDRESS} \\
        --log-file=/config/logs/rc-refresh-$i.log \\
        --log-level=${LOGLEVEL_RC} \n
 #<EOF>#" >> ${SRC}/$i-rc-file.sh
@@ -142,19 +140,18 @@ rclone rc vfs/refresh recursive=true \\
 echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
-# rclone rc purge empty folders for $i over-shell-exec-command ##
+# rclone purge empty folders for $i over-shell-exec-command ##
 # create day = ${dday}
 # All rights reserved. ##
 ##########################
 #\n
-rclone rc operations/rmdirs \\
-       --rc-no-auth --leave-root \\
-       fs=$i: remote= \\
-       --rc-addr=localhost:${RC_ADDRESS} \n
+rclone rmdirs $i: \\
+       --drive-use-trash=false \\
+       --fast-list --transfers=50 \\
+       --config=${config}
 #\n
 rclone rc operations/cleanup \\
-       --rc-no-auth \\
-       fs=$i: remote= \\
+       --rc-no-auth fs=$i: remote= \\
        --rc-addr=localhost:${RC_ADDRESS} \n
 #<EOF>#" >> ${SRP}/$i-rc-file.sh
     chmod a+x ${SRP}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
