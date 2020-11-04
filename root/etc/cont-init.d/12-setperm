@@ -8,22 +8,13 @@ echo "[Mount] ${1}"
 }
 log "-> Setting Permissions || start <-"
 chown -hR abc:abc  \
-          /config \
           /mnt \
-          /config/rclone \
           /root
 
-chmod a+x /app/functions/functions.sh \
-          /app/update-alpine/update-alpine.sh \
-          /app/startupp-mounts.sh \
-          /app/checkmounts.sh \
-          /app/mountsize/mountsize.sh
-
-chown -hR abc:abc /app/functions/functions.sh \
-          /app/update-alpine/update-alpine.sh \
-          /app/startupp-mounts.sh \
-          /app/checkmounts.sh \
-          /app/mountsize/mountsize.sh
+find /config -exec chmod a=rx,u+w {} \;
+find /config -exec chown -hR abc:abc {} \;
+find /app -exec chmod a=rx,u+w {} \;
+find /app -exec chown -hR abc:abc {} \;
 
 chown -R abc:abc /run \
           /var/lib/nginx \

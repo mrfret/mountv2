@@ -5,7 +5,7 @@
 config=/config/rclone/rclone-docker.conf
 drivespace=$(df -BG / --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
 checkspace=$(echo $(( ( ${drivespace} ) /3 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
-rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | wc -l)
+rclone_value=$(rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | wc -l)
 endvalue=$(echo $(( ( ${checkspace} ) /${rclone_value} | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
 
@@ -22,31 +22,44 @@ if [[ ${UAGENT} == 'null' ]];then
 else
    UAGENT=${UAGENT}
 fi
-rcloneenv=/config/scripts/rclone.env
-if [[ ! -f ${rcloneenv} ]]; then
+rcloneenv=/config/env/rclone.env
+if [[ ! -f "${rcloneenv}" ]]; then
 echo -e "DRIVE_TRASH=${DRIVE_TRASH:-false}
-DIR_CACHE_TIME=${DIR_CACHE_TIME:-24h}
+DIR_CACHE_TIME=${DIR_CACHE_TIME:-48h}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-48h}
-VFS_CACHE_POLL_INTERVAL=${VFS_CACHE_POLL_INTERVAL:-5m}
+VFS_CACHE_POLL_INTERVAL=${VFS_CACHE_POLL_INTERVAL:-1m}
 VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-32M}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-2048M}
 VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
+VFS_REFRESH=${VFS_REFRESH:-48h}
 BUFFER_SIZE=${BUFFER_SIZE:-8M}
 PUID=${PUID:-911}
 PGID=${PGID:-911}
 LOGLEVEL=${LOGLEVEL:-ERROR}
+LOGLEVEL_RC=${LOGLEVEL_RC:-INFO}
 TZ=${TZ:-UTC}
 DRIVE_CHUNK_SIZE=${DRIVE_CHUNK_SIZE:-128M}
-UAGENT=${UAGENT}" >/config/scripts/rclone.env
+UAGENT=${UAGENT}" >> /config/env/rclone.env
 else
   echo "-->> -------------------- <<--"
   echo "     --> used stored <--  <<--"
   echo "         rclone.env       <<--"
   echo "-->> -------------------- <<--"
 fi
+discordenv=/config/env/discord.env
+if [[ ! -f "${discordenv}" ]]; then
+echo -e "DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL:-null}
+DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE:-https://i.imgur.com/MZYwA1I.png}
+DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE:-RCLONE}
+DISCORD_EMBED_TITEL=${DISCORD_EMBED_TITEL:-Mount_Message}" >> /config/env/discord.env
+else
+  echo "-->> -------------------- <<--"
+  echo "     --> used stored <--  <<--"
+  echo "         discord.env      <<--"
+  echo "-->> -------------------- <<--"
+fi
 ##export TZdate
 apk --quiet --no-cache --no-progress add tzdata
-export TZ=${TZ}
-
+export TZ=$(grep -e "TZ" "$rcloneenv" | sed "s#TZ.*=##")
 #<EOF<#

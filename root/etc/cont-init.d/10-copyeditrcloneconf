@@ -13,6 +13,9 @@ fi
 if [ ! -d "/config/rclone/" ]; then 
    mkdir -p /config/rclone 
 fi
+if [ ! -d "/config/env/" ]; then 
+   mkdir -p /config/env 
+fi
 if [ -f "/config/rclone.conf" ]; then
     log "-> Copying rclone.conf <-"
         rm -f /config/rclone/rclone-docker.conf

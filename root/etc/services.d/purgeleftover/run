@@ -1,0 +1,16 @@
+#!/usr/bin/with-contenv bash
+# shellcheck shell=bash
+function log() {
+    echo "[Mount] ${1}"
+}
+# Copyright (c) 2020, MrDoob
+# All rights reserved.
+
+# shellcheck disable=SC2086
+
+umask 022
+remotecleanup="/app/clean/remotecleanup.sh"
+sleep 5
+
+log "-> rclone rc purge empty folders <-"
+exec $remotecleanup

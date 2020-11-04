@@ -10,7 +10,7 @@ function log() {
 }
 IFS=$'\n'
 filter="$1"
-config=/config/rclone.conf
+config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
 ## function source end
@@ -20,12 +20,18 @@ if [[ "$(command -v fusermount | wc -l)" != "1" ]]; then
    log " > fuser and fusermount reinstalled "
 fi
 
-log "-> stoping mounts <-"
+log "-> Stop mergerfs <-"
+kill -9 $(pgrep mergerfs)
+
+log "-> Stopping the mounts <-"
 for i in ${mounts[@]}; do
     log "-> Stop Mounting $i <-"
-    fusermount -uz $i
-	sleep 2
-	find /mnt/drive-* -type d -empty -delete
-	sleep 2
+    pids="$(ps -ef | grep '$i-mount.sh' | head -n 1 | grep -v grep | awk '{print $1}')"
+    kill -9 $pids 
+    sleep 2
+    fusermount -uz /mnt/drive-$i
+    sleep 2
+    find /mnt/drive-$i -type d -empty -delete
+    sleep 2
 done
 sleep 10

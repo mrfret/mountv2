@@ -5,49 +5,64 @@
 function log() {
 echo "[Mount] ${1}"
 }
-source /config/scripts/rclone.env
+source /config/env/rclone.env
 echo "
 -------------------------------------------------------
    DOCKER ENV vars
 -------------------------------------------------------
    TimeZone                       ${TZ}
-   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
-   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
    DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
    DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
-   DRIVE_TRASH                    ${DRIVE_TRASH}
    VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
    VFS_READ_CHUNK_SIZE            ${VFS_READ_CHUNK_SIZE}
    VFS_CACHE_MAX_AGE              ${VFS_CACHE_MAX_AGE}
    VFS_READ_CHUNK_SIZE_LIMIT      ${VFS_READ_CHUNK_SIZE_LIMIT}
    VFS_CACHE_MODE                 ${VFS_CACHE_MODE}
    VFS_CACHE_MAX_SIZE             ${VFS_CACHE_MAX_SIZE} per drive
+   VFS_REFRESH                    ${VFS_REFRESH}
    BUFFER_SIZE                    ${BUFFER_SIZE}
    LOGLEVEL                       ${LOGLEVEL}
+   LOGLEVEL_RC                    ${LOGLEVEL_RC}
    UAGENT                         ${UAGENT}
    PUID                           ${PUID}
    PGID                           ${PGID}
+"
+source /config/env/discord.env
+echo "
+   DISCORD_WEBHOOK_URL            ${DISCORD_WEBHOOK_URL}
+   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
+   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
+   DISCORD_ICON_OVERRIDE          ${DISCORD_ICON_OVERRIDE}
 -------------------------------------------------------
 "
+
 ##### FOLDER START #####
 SMOUNT=/config/scripts
+SRC=/config/rc-refresh
+SRP=/config/rc-purge
 SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
 SCACHE=/tmp/rclone_cache
 DFOLD=/config/discord
-rm -rf /config/logs/ && mkdir -p /config/logs
+LOGS=/config/logs 
+rm -rf ${LOGS} && mkdir -p ${LOGS} && chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
+rm -rf ${SRC} && mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
+rm -rf ${SRP} && mkdir -p ${SRP} && chown -hR abc:abc ${SRP} && chmod -R 775 ${SRP}
+rm -rf ${SCACHE} && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+rm -rf ${DFOLD} && mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
+
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
 mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
-mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
-mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
+
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
+rm -rf /tmp/RC_ADDRESS && echo "5572" > /tmp/RCPORT
 ## function source start
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 ##### RUN MOUNT #####
 for i in ${mounts[@]}; do
   if [ ! -d "/mnt/drive-$i" ]; then     
@@ -59,34 +74,39 @@ for i in ${mounts[@]}; do
     fusermount -uzq /mnt/drive-$i
   fi
   rm -rf ${SMOUNT}/$i-mount.sh
+  rm -rf ${SRC}/$i-rc-file.sh
+  rm -rf ${SMOUNT}/$i-rc-file.sh
+  rm -rf ${SRP}/$i-rc-file.sh
+  /usr/bin/rclone touch $i:/.mountcheck-$i --config=${config} --localtime >> /dev/null
   touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/**.log >> /dev/null
   ddaylic=$(date +"%Y")
   dday=$(date)
-  echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
+  RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
+  echo ${RC_ADDRESS} >/tmp/RCPORT
+  echo -n "/mnt/drive-$i=RW:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
-# Copyright (c) ${dday}, MrDoob ##
+# Copyright (c) ${ddaylic}, MrDoob ##
 # rclone mount for $i over-shell-exec-command ##
-# create day = ${ddaylic}
+# create day = ${dday}
 # All rights reserved. ##
-##\n
-
+##########################
+#\n
 rclone mount $i: /mnt/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
-    --drive-skip-gdocs --timeout=1h \\
+    --timeout=1h \\
     --cache-dir=/tmp/rclone_cache/ \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --no-modtime --no-seek \\
-    --ignore-errors --use-mmap \\
+    --ignore-errors --poll-interval=30s \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
-    --drive-use-trash=${DRIVE_TRASH} \\
     --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
     --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \\
@@ -95,10 +115,47 @@ rclone mount $i: /mnt/drive-$i \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
+    --rc --rc-no-auth --rc-addr=localhost:${RC_ADDRESS} \\
     --daemon \n" >> ${SMOUNT}/$i-mount.sh
-    chmod a+x  ${SMOUNT}/$i-mount.sh && chown -hR abc:abc ${SMOUNT}/$i-mount.sh
-    chown -hR abc:abc /tmp/rclone_cache/
-    log "-->> Mount file created for $i <<--"
-done
 
+##vfs-refresh
+echo -e "#!/usr/bin/with-contenv bash
+# shellcheck shell=bash ##
+# Copyright (c) ${ddaylic}, MrDoob ##
+# rclone rc vfs/refresh for $i over-shell-exec-command ##
+# create day = ${dday}
+# All rights reserved. ##
+##########################
+#\n
+rclone rc vfs/refresh recursive=true \\
+       --rc-no-auth --rc-addr=localhost:${RC_ADDRESS} \\
+       --log-file=/config/logs/rc-refresh-$i.log \\
+       --log-level=${LOGLEVEL_RC} \n
+#<EOF>#" >> ${SRC}/$i-rc-file.sh
+    chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
+    chown -hR abc:abc /tmp/rclone_cache/
+    log "-->> rclone rc refresh file created for $i <<--"
+
+##renote cleanup
+echo -e "#!/usr/bin/with-contenv bash
+# shellcheck shell=bash ##
+# Copyright (c) ${ddaylic}, MrDoob ##
+# rclone purge empty folders for $i over-shell-exec-command ##
+# create day = ${dday}
+# All rights reserved. ##
+##########################
+#\n
+rclone rmdirs $i: \\
+       --drive-use-trash=false \\
+       --fast-list --transfers=50 \\
+       --config=${config}
+#\n
+rclone rc operations/cleanup \\
+       --rc-no-auth fs=$i: remote= \\
+       --rc-addr=localhost:${RC_ADDRESS} \n
+#<EOF>#" >> ${SRP}/$i-rc-file.sh
+    chmod a+x ${SRP}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
+    chown -hR abc:abc /tmp/rclone_cache/
+    log "-->> rclone rc auto purge empty folder created for $i <<--"
+done
 #EOF#

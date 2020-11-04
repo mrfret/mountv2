@@ -1,8 +1,9 @@
 #!/usr/bin/with-contenv bash
 # shellcheck shell=bash
-# Copyright (c) 2019, MrDoob
+# Copyright (c) 2020, MrDoob
 # All rights reserved.
 # shellcheck disable=SC2086
+# shellcheck disable=SC2006
 function log() {
     echo "[Mount] ${1}"
 }
@@ -10,134 +11,100 @@ function logdocker() {
     echo "[DOCKER] ${1}"
 }
 function startupdocker() {
-SERVICE=$(pgrep mergerfs | wc -l)
-LSFOLDER=$(ls /mnt/unionfs | wc -l)
-if [[ ${SERVICE} -ne "0" && ${LSFOLDER} -ne "0" ]]; then
-    restart_container
-else
-    wait_for
-fi
-}
-function wait_for() {
-  logdocker " -> wait for mounted drives <- "
-  sleep 5
-  startupdocker
-}
-function restart_container() {
-logdocker " -------------------------------"
-logdocker " -->    RESTART DOCKER      <---"
-logdocker " -->         START          <---"
-logdocker " -------------------------------"
-apk add docker --quiet --no-cache --force-refresh --no-progress
-docker ps -a -q --format '{{.Names}}' | sort -r | sed '/^$/d' > /tmp/dockers
-#### LIST SOME DOCKER TO RESTART ####
-containers=$(grep -E 'plex|arr|emby' /tmp/dockers)
-for container in $containers; do
-    logdocker " -->> Stopping $container <<-- "
-    docker stop $container >> /dev/null
-done
-    logdocker " -->> sleeping 5secs for graceful stopped containers <<--"
-    sleep 5
-for container in $containers; do
-    logdocker " -->> Starting $container <<-- "
-    docker start $container >> /dev/null
-done
-apk del docker --quiet --no-progress && apk del --quiet --clean-protected --no-progress
-rm -rf /tmp/dockers
-logdocker " -------------------------------"
-logdocker " -->    RESTART DOCKER      <---"
-logdocker " -->       FINISHED         <---"
-logdocker " -------------------------------"
-}
-function discord_send() {
-IFS=$'\n'
-filter="$1"
-config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d')
-DISCORD="/config/discord/startup.discord"
-DISCORD_WEBHOOK_URL=${DISCORD_WEBHOOK_URL}
-DISCORD_ICON_OVERRIDE=${DISCORD_ICON_OVERRIDE}
-DISCORD_NAME_OVERRIDE=${DISCORD_NAME_OVERRIDE}
-if [ ${DISCORD_WEBHOOK_URL} != 'null' ]; then
-   echo "[Mount] -> Starting $i Mount $(date) <- [Mount]" >"${DISCORD}"
-   msg_content=$(cat "${DISCORD}")
-   curl -sH "Content-Type: application/json" -X POST -d "{\"username\": \"${DISCORD_NAME_OVERRIDE}\", \"avatar_url\": \"${DISCORD_ICON_OVERRIDE}\", \"embeds\": [{ \"title\": \"${TITEL}\", \"description\": \"$msg_content\" }]}" $DISCORD_WEBHOOK_URL
-else
-   log " Starting $i Mount $(date) <- [Mount]"
-fi
-}
-function checkmountstatus() {
-SCHECK=/config/check
-IFS=$'\n'
-filter="$1"
-config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
-for i in ${mounts[@]}; do
-if [ -z $(pgrep -f $i | head -n 1) ] || [ ! -e /proc/$(pgrep -f $i | head -n 1) ]; then
-    fusermount -uz /mnt/drive-$i >>/dev/null
-    fusermount -uz /mnt/unionfs >>/dev/null
-    log "-> RE - Mounting $i <-"
-    bash ${SMOUNT}/$i-mount.sh
-    sleep 1
-    echo "remounted since $(date)" > ${SCHECK}/$i.mounted
-    startupdocker
-  else
-    truncate -s 2 ${SCHECK}/$i.mounted
-    echo "last check $(date)" > ${SCHECK}/$i.mounted
+while true; do
+   MERGERFS_PID=$(pgrep mergerfs)
+   if [[ "${MERGERFS_PID}" ]]; then
+      restart_container
+      break
+   else
+      sleep 5 && log "waiting for running megerfs"
+      continue
   fi
 done
 }
+function crashed() {
+logdocker " -------------------------------"
+logdocker " -->      STOP DOCKERS      <---"
+logdocker " -->    MERGERFS CRASHED    <---"
+logdocker " -------------------------------"
+container=$(docker ps -aq --format '{{.Names}}' | sed '/^$/d' | grep -E 'ple|arr|emby|jelly')
+docker stop $container >> /dev/null
+sleep 2
+}
+function restart_container() {
+logdocker " -------------------------------"
+logdocker " -->   RESTART DOCKER PART  <---"
+logdocker " -->         STARTED        <---"
+logdocker " -------------------------------"
+container=$(docker ps -aq --format '{{.Names}}' | sed '/^$/d' | grep -E 'ple|arr|emby|jelly')
+docker stop $container >> /dev/null
+logdocker " -->> sleeping 5secs for graceful stopped containers <<--"
+sleep 5
+container=$(docker ps -aq --format '{{.Names}}' | sed '/^$/d' | grep -E 'ple|arr|emby|jelly')
+#### LIST SOME DOCKER TO RESTART ####
+docker start $container >> /dev/null
+logdocker " -------------------------------"
+logdocker " -->   RESTART DOCKER PART  <---"
+logdocker " -->        FINISHED        <---"
+logdocker " -------------------------------"
+}
 #### END OF FUNCTION #####
+apk add docker-cli --quiet --no-cache --force-refresh --no-progress
 log "-> starting mounts part <-"
 SMOUNT=/config/scripts
 SCHECK=/config/check
 SLOG=/config/logs
+SRC=/config/rc-refresh
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/[GDSA00-99C:]//g' | sed '/^$/d' | sort -r)
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 for i in ${mounts[@]}; do
-    discord_send
-    mkdir -p ${SLOG} && mkdir -p ${SCHECK} && mkdir -p ${SMOUNT}
-    chmod 775 ${SLOG} && chmod 775 ${SCHECK} && chmod 775 ${SMOUNT}
-    chmod 775 ${SCHECK} && chmod 775 ${SCHECK} && chmod 775 ${SCHECK}
-    bash ${SMOUNT}/$i-mount.sh
+    mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
+    mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
+    mkdir -p ${SLOG} && chown -hR abc:abc ${SLOG} && chmod -R 775 ${SLOG}
+    mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
+    if [[ -f "${SMOUNT}/$i-mount.sh" ]]; then
+       bash ${SMOUNT}/$i-mount.sh
+       echo "mounted since $(date)" > ${SCHECK}/$i.mounted
+    else 
+       echo "cant start mount file for $i drive $(date)" > ${SCHECK}/$i.mounted
+    fi
     sleep 1
-    echo "mounted since $(date)" > ${SCHECK}/$i.mounted
 done
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
-echo -e "statfs_ignore=nc,nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,category.create=ff,minfreespace=0,fsname=mergerfs" >/tmp/mergerfs_mount_file
+echo -e "nonempty,sync_read,auto_cache,dropcacheonclose=true,use_ino,allow_other,func.getattr=newest,cache.files=auto-full,category.action=all,category.create=ff,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 log "show the binded mounts with NC-FLAG ${UFSPATH}"
-/usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
+mergerfs -o $MGFS ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
 sleep 5
 #### CHECK DOCKER.SOCK ####
-dockersock=$(ls -la /var/run/docker.sock | wc -l)
+dockersock=$(curl --silent --output /dev/null --show-error --fail --unix-socket /var/run/docker.sock http://localhost/images/json)
 #### RESTART DOCKER #### 
-if [[ ${dockersock} == '1' ]]; then
-   startupdocker
-else
+if [[ "${dockersock}" != '' ]]; then
    sleep 1
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    logdocker "   SAMPLE :"
    logdocker "   PLEX / SONARR / LIDARR / RADARR / EMBY"
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    sleep 30
+else
+   startupdocker
 fi
 
 MERGERFS_PID=$(pgrep mergerfs)
+
 log "MERGERFS PID: ${MERGERFS_PID}"
 
 while true; do
-  MERGERFS_PID=$(pgrep mergerfs)
-  if [ -z "${MERGERFS_PID}" ] || [ ! -e /proc/${MERGERFS_PID} ]; then
-     /usr/bin/mergerfs -o ${MGFS} ${UFSPATH}/mnt/downloads=RW /mnt/unionfs
-     startupdocker
-     checkmountstatus
+   MERGERFS_PID=$(pgrep mergerfs)
+   if [ "${MERGERFS_PID}" ] && [ -e /proc/${MERGERFS_PID} ]; then
+      sleep 5 && echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
+      continue
+   else
+      sleep 5 && crashed
+      exit 0
   fi
-  checkmountstatus
-  echo "mounted since $(date)" > ${SCHECK}/mergerfs.mounted
-  sleep 10
 done
