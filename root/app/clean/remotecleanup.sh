@@ -15,7 +15,7 @@ fi
 function drivecheck() {
 while true; do
   MERGERFS_PID=$(pgrep mergerfs)
-  if [ "${MERGERFS_PID}" ]; then
+  if [ ! "${MERGERFS_PID}" ]; then
       sleep 5 && continue
    else
       break && sleep 5
