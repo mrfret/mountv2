@@ -85,7 +85,7 @@ for i in ${mounts[@]}; do
   dday=$(date)
   RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
   echo ${RC_ADDRESS} >/tmp/RCPORT
-  echo -n "/mnt/drive-$i=RW:" >>/tmp/rclone-mount.file
+  echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
