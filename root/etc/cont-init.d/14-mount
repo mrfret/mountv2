@@ -48,7 +48,7 @@ LOGS=/config/logs
 rm -rf ${LOGS} && mkdir -p ${LOGS} && chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
 rm -rf ${SRC} && mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
 rm -rf ${SRP} && mkdir -p ${SRP} && chown -hR abc:abc ${SRP} && chmod -R 775 ${SRP}
-rm -rf ${SCACHE} && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
 rm -rf ${DFOLD} && mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
@@ -85,7 +85,7 @@ for i in ${mounts[@]}; do
   dday=$(date)
   RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
   echo ${RC_ADDRESS} >/tmp/RCPORT
-  echo -n "/mnt/drive-$i=RW:" >>/tmp/rclone-mount.file
+  echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##

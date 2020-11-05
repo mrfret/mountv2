@@ -8,9 +8,9 @@ function log() {
 
 # shellcheck disable=SC2086
 
-umask 022
-remotecleanup="/app/clean/remotecleanup.sh"
-sleep 5
+#umask 022
+#remotecleanup="/app/clean/remotecleanup.sh"
+#sleep 5
 
-log "-> rclone rc purge empty folders <-"
-exec $remotecleanup
+#log "-> rclone rc purge empty folders <-"
+#exec s6-setuidgid abc $remotecleanup

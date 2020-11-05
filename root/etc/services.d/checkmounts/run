@@ -13,4 +13,4 @@ check_mounts="/app/checkmounts.sh"
 sleep 5
 
 log "-> Starting Check Mounts <-"
-exec s6-setuidgid abc $check_mounts
+exec $check_mounts
