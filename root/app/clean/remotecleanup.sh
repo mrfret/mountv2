@@ -26,9 +26,10 @@ config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 for i in ${mounts[@]}; do
-  run=$(ls -la /mnt/drive-$i/ | wc -l)
+  RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config} | wc -l)
+  MOUNT_CHECK=$(ls -la /mnt/drive-$i/.mountcheck-$i | wc -l)
   pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
-  if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
+  if [ "$pids" != '0' ] && [ ${RCLONE_CHECK} == ${MOUNT_CHECK} ]; then
      /bin/bash ${SRP}/$i-rc-file.sh && chmod a+x ${SRP}/$i-rc-file.sh && chown -hR abc:abc ${SRP}/$i-rc-file.sh
      truncate -s 0 /config/logs/*.log
      sleep 5
@@ -44,3 +45,9 @@ while true; do
      drivecheck && sleep "${VFS_REFRESH}" && continue
    fi
 done
+
+##EOF##
+##OLD LINES
+  ##run=$(ls -la /mnt/drive-$i/ | wc -l)
+  ##pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
+  ##if [ "$pids" != '0' ] && [ "$run" != '0' ]; then
