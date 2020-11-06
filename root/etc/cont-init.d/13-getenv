@@ -59,7 +59,9 @@ else
   echo "         discord.env      <<--"
   echo "-->> -------------------- <<--"
 fi
-##export TZdate
+# TZdate
 apk --quiet --no-cache --no-progress add tzdata
-export TZ=$(grep -e "TZ" "$rcloneenv" | sed "s#TZ.*=##")
+# export all envs to shell
+while read -r line; do declare -x "$line"; done < <(egrep -v "(^#|^\s|^$)" /config/env/rclone.env)
+while read -r line; do declare -x "$line"; done < <(egrep -v "(^#|^\s|^$)" /config/env/discord.env)
 #<EOF<#
