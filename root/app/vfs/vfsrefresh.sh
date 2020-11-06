@@ -26,10 +26,10 @@ config=/config/rclone/rclone-docker.conf
 #rclone listremotes | gawk "$filter"
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 for i in ${mounts[@]}; do
-  RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config} | wc -l)
-  MOUNT_CHECK=$(ls -la /mnt/drive-$i/.mountcheck-$i | wc -l)
+  RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
+  MOUNT_CHECK=$(ls /mnt/drive-$i/.mountcheck-$i)
   pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
-  if [ "$pids" != '0' ] && [ -f ${RCLONE_CHECK} -a -f ${MOUNT_CHECK} ]; then
+  if [ "$pids" != '0' ] && [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
      /bin/bash ${SRC}/$i-rc-file.sh && chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
      truncate -s 0 /config/logs/*.log
      sleep 5
