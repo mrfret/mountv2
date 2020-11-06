@@ -28,8 +28,7 @@ mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter
 for i in ${mounts[@]}; do
   RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
   MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
-  pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}') 
-  if [ "$pids" != '0' ] && [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
+  if [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
      /bin/bash ${SRC}/$i-rc-file.sh && chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
      truncate -s 0 /config/logs/*.log
      sleep 5
