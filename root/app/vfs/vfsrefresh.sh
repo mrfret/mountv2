@@ -7,7 +7,7 @@
 # shellcheck disable=SC2086
 # shellcheck disable=SC2002
 # shellcheck disable=SC2006
-
+source /config/env/rclone.env
 if [[ $(grep -e 'VFS_REFRESH' /config/env/rclone.env | wc -l) != 1 ]]; then
    VFS_REFRESH=${VFS_REFRESH:-48h}
 else
