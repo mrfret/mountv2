@@ -54,8 +54,7 @@ while true; do
   for i in ${mounts[@]}; do
   RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
   MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
-  pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
-  if [ "$pids" != "" ] && [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
+  if [[ "${RCLONE_CHECK}" == ".mountcheck-$i" -a -f "${MOUNT_CHECK}" ]]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
        echo "last check $(date)" > ${SCHECK}/$i.mounted
