@@ -52,9 +52,10 @@ done
 
 while true; do
   for i in ${mounts[@]}; do
-    RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config} | wc -l)
-    MOUNT_CHECK=$(ls -la /mnt/drive-$i/.mountcheck-$i | wc -l)
-    if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ] && [ ${RCLONE_CHECK} == ${MOUNT_CHECK} ]; then
+  RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
+  MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
+  pids=$(ps -ef | grep 'rclone mount $i' | head -n 1 | awk '{print $1}')
+  if [ "$pids" != "" ] && [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
        echo "last check $(date)" > ${SCHECK}/$i.mounted
@@ -66,7 +67,7 @@ while true; do
        else
           logfailed $i " FAILED REMOUNT STARTS NOW [ WARNING ]"
        fi
-       fusermount -uz /mnt/drive-$i >>/dev/null
+       fusermount -uzq /mnt/drive-$i
        log "-> RE - Mounting $i <-"
        bash ${SMOUNT}/$i-mount.sh
        echo "remounted since $(date)" > ${SCHECK}/$i.mounted
