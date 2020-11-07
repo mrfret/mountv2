@@ -23,8 +23,14 @@ else
    UAGENT=${UAGENT}
 fi
 rcloneenv=/config/env/rclone.env
+rcloneenvcheck=$(cat ${rcloneenv} | wc -l)
+if [[ "${rcloneenvcheck}" != '18' ]]; then
+    rm -rf "${rcloneenv}"
+fi
+ 
 if [[ ! -f "${rcloneenv}" ]]; then
 echo -e "DRIVE_TRASH=${DRIVE_TRASH:-false}
+CACHE_INFO_AGE=${CACHE_INFO_AGE:-48h}
 DIR_CACHE_TIME=${DIR_CACHE_TIME:-48h}
 VFS_CACHE_MAX_AGE=${VFS_CACHE_MAX_AGE:-48h}
 VFS_CACHE_POLL_INTERVAL=${VFS_CACHE_POLL_INTERVAL:-1m}
