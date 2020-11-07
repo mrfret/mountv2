@@ -11,6 +11,7 @@ echo "
    DOCKER ENV vars
 -------------------------------------------------------
    TimeZone                       ${TZ}
+   CACHE_INFO_AGE                 ${CACHE_INFO_AGE}
    DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
    DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
    VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
@@ -99,7 +100,7 @@ rclone mount $i: /mnt/drive-$i \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
-    --timeout=1h \\
+    --timeout=1h --use-mmap \\
     --cache-dir=/tmp/rclone_cache/ \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --no-modtime --no-seek \\
@@ -108,6 +109,7 @@ rclone mount $i: /mnt/drive-$i \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
     --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
+    --cache-info-age=${CACHE_INFO_AGE} \\
     --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
