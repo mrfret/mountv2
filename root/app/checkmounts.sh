@@ -51,10 +51,14 @@ while true; do
 done
 
 while true; do
+  IFS=$'\n'
+  filter="$1"
+  config=/config/rclone/rclone-docker.conf
+  mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d')
   for i in ${mounts[@]}; do
   RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
   MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
-  if [[ "${RCLONE_CHECK}" == ".mountcheck-$i" -a -f "${MOUNT_CHECK}" ]]; then
+  if [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
        echo "last check $(date)" > ${SCHECK}/$i.mounted
