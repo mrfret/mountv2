@@ -70,6 +70,7 @@ while true; do
        else
           logfailed $i " FAILED REMOUNT STARTS NOW [ WARNING ]"
        fi
+       /usr/bin/rclone touch $i:/.mountcheck-$i --config=${config} --localtime
        fusermount -uzq /mnt/drive-$i
        log "-> RE - Mounting $i <-"
        bash ${SMOUNT}/$i-mount.sh
