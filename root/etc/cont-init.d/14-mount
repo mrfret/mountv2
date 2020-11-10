@@ -11,6 +11,7 @@ echo "
    DOCKER ENV vars
 -------------------------------------------------------
    TimeZone                       ${TZ}
+   CACHE_INFO_AGE                 ${CACHE_INFO_AGE}
    DIR_CACHE_TIME                 ${DIR_CACHE_TIME}
    DRIVE_CHUNK_SIZE               ${DRIVE_CHUNK_SIZE}
    VFS_CACHE_POLL_INTERVAL        ${VFS_CACHE_POLL_INTERVAL}
@@ -35,7 +36,6 @@ echo "
    DISCORD_ICON_OVERRIDE          ${DISCORD_ICON_OVERRIDE}
 -------------------------------------------------------
 "
-
 ##### FOLDER START #####
 SMOUNT=/config/scripts
 SRC=/config/rc-refresh
@@ -77,7 +77,7 @@ for i in ${mounts[@]}; do
   rm -rf ${SRC}/$i-rc-file.sh
   rm -rf ${SMOUNT}/$i-rc-file.sh
   rm -rf ${SRP}/$i-rc-file.sh
-  /usr/bin/rclone touch $i:/.mountcheck-$i --config=${config} --localtime >> /dev/null
+  rclone touch $i:/.mountcheck-$i --config=${config} --localtime >> /dev/null
   touch /config/logs/rclone-$i.log
   chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
   truncate -s 0 /config/logs/**.log >> /dev/null
@@ -100,7 +100,7 @@ rclone mount $i: /mnt/drive-$i \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
-    --timeout=1h \\
+    --timeout=1h --use-mmap \\
     --cache-dir=/tmp/rclone_cache/ \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --no-modtime --no-seek \\
@@ -109,6 +109,7 @@ rclone mount $i: /mnt/drive-$i \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
     --buffer-size=${BUFFER_SIZE} \\
     --dir-cache-time=${DIR_CACHE_TIME} \\
+    --cache-info-age=${CACHE_INFO_AGE} \\
     --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \\
     --vfs-cache-mode=${VFS_CACHE_MODE} \\
     --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\

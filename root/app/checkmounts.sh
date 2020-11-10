@@ -51,10 +51,14 @@ while true; do
 done
 
 while true; do
+  IFS=$'\n'
+  filter="$1"
+  config=/config/rclone/rclone-docker.conf
+  mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d')
   for i in ${mounts[@]}; do
-    RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config} | wc -l)
-    MOUNT_CHECK=$(ls -la /mnt/drive-$i/.mountcheck-$i | wc -l)
-    if [ $(pgrep -f $i | head -n 1) ] && [ -e /proc/$(pgrep -f $i | head -n 1) ] && [ ${RCLONE_CHECK} == ${MOUNT_CHECK} ]; then
+  RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
+  MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
+  if [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
        echo "last check $(date)" > ${SCHECK}/$i.mounted
@@ -66,7 +70,8 @@ while true; do
        else
           logfailed $i " FAILED REMOUNT STARTS NOW [ WARNING ]"
        fi
-       fusermount -uz /mnt/drive-$i >>/dev/null
+       /usr/bin/rclone touch $i:/.mountcheck-$i --config=${config} --localtime
+       fusermount -uzq /mnt/drive-$i
        log "-> RE - Mounting $i <-"
        bash ${SMOUNT}/$i-mount.sh
        echo "remounted since $(date)" > ${SCHECK}/$i.mounted
