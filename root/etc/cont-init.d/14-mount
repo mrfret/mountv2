@@ -54,8 +54,8 @@ rm -rf ${DFOLD} && mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 7
 
 mkdir -p ${DRV} && chown -hR abc:abc ${DRV} && chmod -R 775 ${DRV}
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
-mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
-mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
+#mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
+#mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
 
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
@@ -70,10 +70,10 @@ for i in ${mounts[@]}; do
   if [ ! -d "/drives/drive-$i" ]; then     
      mkdir -p /drives/drive-$i && mkdir -p /tmp/rclone_cache/
      chown -hR abc:abc /drives/drive-$i && chown -hR abc:abc /tmp/rclone_cache/
-     chmod -R 775 /mnt/drive-$i && chmod -R 775 /tmp/rclone_cache/
+     chmod -R 775 /drives/drive-$i && chmod -R 775 /tmp/rclone_cache/
   fi
   if [ "$(ls /drives/drive-$i | wc -l)" -gt 1 ]; then     
-    fusermount -uzq /mnt/drive-$i
+    fusermount -uzq /drives/drive-$i
   fi
   rm -rf ${SMOUNT}/$i-mount.sh
   rm -rf ${SRC}/$i-rc-file.sh
