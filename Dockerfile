@@ -1,14 +1,10 @@
-######################################################
-# All rights reserved.                               #
-# started from Zero from MrDoob                      #
-# es wird keinem erlaubt                             #
-# es in seinem Projekt einzubauen                    #
-# ohne meine Erlaubnis / Anfange oder sonstiges      # 
-######################################################
-########   ich scheiß auf alle ihr hajos   ###########
-######################################################
+################################
+# All rights reserved.         #
+# started from Zero            #
+# Docker owned from sudobox.io #
+################################
 FROM alpine:latest
-LABEL Maintainer="MrDooB" \
+LABEL Maintainer="sudobox.io" \
       Description="Container incl rclone/mergerfs and auto mounting drives."
 
 COPY root/ /
@@ -17,9 +13,8 @@ RUN \
  echo "**** install build packages ****" && \
  apk --quiet --no-cache --no-progress add \
         ca-certificates libattr logrotate shadow bash bc findutils coreutils openssl \
-        php7 php7-fpm  php7-mysqli php7-json php7-openssl php7-curl php7-zlib php7-xml php7-phar php7-dom \
         autoconf automake libtool gettext-dev attr-dev linux-headers musl \
-        php7-xmlreader php7-ctype php7-mbstring php7-gd curl nginx libxml2-utils openntpd grep tar && \
+        curl libxml2-utils openntpd grep tar && \
         rm -rf /var/cache/apk/*
 
 RUN \
@@ -32,17 +27,9 @@ RUN \
 
 VOLUME [ "/config" ]
 RUN chown 911:911 /config && \
-    mkdir -p /var/www/html && \
     addgroup -g 911 abc && \
     adduser -u 911 -D -G abc abc
 
-COPY --chown=abc html/ /var/www/html
-COPY config/nginx.conf /etc/nginx/nginx.conf
-COPY config/fpm-pool.conf /etc/php7/php-fpm.d/www.conf
-COPY config/php.ini /etc/php7/conf.d/zzz_custom.ini
-
 EXPOSE 8080
-
-HEALTHCHECK --timeout=5s CMD curl --silent --fail http://127.0.0.1:8080/fpm-ping
 # Setup EntryPoint
 ENTRYPOINT [ "/init" ]
