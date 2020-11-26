@@ -13,11 +13,6 @@ find /config -exec chown -hR abc:abc {} \;
 find /app -exec chmod a=rx,u+w {} \;
 find /app -exec chown -hR abc:abc {} \;
 
-chown -R abc:abc /run \
-          /var/lib/nginx \
-          /var/log/nginx \
-          /var/www
-
 if [[ $(command -v rclone | wc -l) == "1" ]]; then
     chown -cf abc:abc /root
 fi
