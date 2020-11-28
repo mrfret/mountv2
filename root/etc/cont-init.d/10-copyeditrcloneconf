@@ -10,12 +10,7 @@ if [ ! -f "/config/rclone.conf" ]; then
    sleep 60
    exit 0
 fi
-if [ ! -d "/config/rclone/" ]; then 
-   mkdir -p /config/rclone 
-fi
-if [ ! -d "/config/env/" ]; then 
-   mkdir -p /config/env 
-fi
+mkdir -p /config/{rclone,env,discord,logs,rc-purge,rc-refresh,scripts}
 if [ -f "/config/rclone.conf" ]; then
     log "-> Copying rclone.conf <-"
         rm -f /config/rclone/rclone-docker.conf
