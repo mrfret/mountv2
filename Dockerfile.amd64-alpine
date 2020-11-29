@@ -15,7 +15,7 @@ COPY root/ /
 RUN echo "**** update system ****" && \
   apk --quiet --no-cache --no-progress update && \
   echo "**** install build packages ****" && \
-  curl wget grep tar bash && \
+  apk --quiet --no-cache --no-progress add curl wget grep tar bash && \
   echo "**** upgrade system ****" && \
   apk --quiet --no-cache --no-progress upgrade && \
   rm -rf /var/cache/apk/*
