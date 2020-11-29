@@ -13,10 +13,12 @@ LABEL Maintainer="sudobox.io" \
 COPY root/ /
 
 RUN echo "**** update system ****" && \
- apk --quiet --no-cache --no-progress update
-RUN echo "**** install build packages ****" && \
- curl wget grep tar bash openssh openssh-keygen && \
- rm -rf /var/cache/apk/*
+  apk --quiet --no-cache --no-progress update && \
+  echo "**** install build packages ****" && \
+  curl wget grep tar bash && \
+  echo "**** upgrade system ****" && \
+  apk --quiet --no-cache --no-progress upgrade && \
+  rm -rf /var/cache/apk/*
 
 RUN echo "**** Install s6-overlay ****" && \ 
   curl -sX GET "https://api.github.com/repos/just-containers/s6-overlay/releases/latest" | awk '/tag_name/{print $4;exit}' FS='[""]' > /etc/S6_RELEASE && \
