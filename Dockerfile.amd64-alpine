@@ -3,7 +3,7 @@
 # started from Zero                                  #
 # Docker owned from sudobox.io                       #
 ######################################################
-FROM sudobox/docker-images:amd64-alpine
+FROM alpine:latest
 ARG S6_ARCH=amd64
 ARG S6_KEEP_ENV=1
 
