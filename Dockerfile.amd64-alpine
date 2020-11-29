@@ -29,9 +29,6 @@ RUN echo "**** Install s6-overlay ****" && \
 
 VOLUME [ "/config" ]
 
-RUN mkdir -p /root/.ssh && \
-    chmod 0700 /root/.ssh
-
 RUN chown 911:911 /config && \
     addgroup -g 911 abc && \
     adduser -u 911 -D -G abc abc
