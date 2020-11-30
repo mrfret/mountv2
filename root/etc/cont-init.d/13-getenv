@@ -2,6 +2,15 @@
 # shellcheck shell=bash
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
+
+SCACHE=/tmp/rclone_cache
+if [ ! -d "/tmp/rclone_cache" ]; then   
+   echo " -> Creating  RCLONE_CACHE Folder <- "
+   rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+else
+   echo " -> RCLONE_CACHE Folder exist || so skipping <- "
+   chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+fi
 config=/config/rclone/rclone-docker.conf
 drivespace=$(df -BG /tmp/rclone_cache --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
 checkspace=$(echo $(( ( ${drivespace} ) /3 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
