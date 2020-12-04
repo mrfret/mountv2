@@ -44,16 +44,18 @@ SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
 SCACHE=/tmp/rclone_cache
 DFOLD=/config/discord
-LOGS=/config/logs 
+LOGS=/config/logs
+DRV=/drives
 rm -rf ${LOGS} && mkdir -p ${LOGS} && chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
 rm -rf ${SRC} && mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
 rm -rf ${SRP} && mkdir -p ${SRP} && chown -hR abc:abc ${SRP} && chmod -R 775 ${SRP}
 rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
 rm -rf ${DFOLD} && mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
 
+mkdir -p ${DRV} && chown -hR abc:abc ${DRV} && chmod -R 775 ${DRV}
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
-mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
-mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
+#mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
+#mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
 
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
@@ -65,13 +67,13 @@ config=/config/rclone/rclone-docker.conf
 mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 ##### RUN MOUNT #####
 for i in ${mounts[@]}; do
-  if [ ! -d "/mnt/drive-$i" ]; then     
-     mkdir -p /mnt/drive-$i && mkdir -p /tmp/rclone_cache/
-     chown -hR abc:abc /mnt/drive-$i && chown -hR abc:abc /tmp/rclone_cache/
-     chmod -R 775 /mnt/drive-$i && chmod -R 775 /tmp/rclone_cache/
+  if [ ! -d "/drives/drive-$i" ]; then     
+     mkdir -p /drives/drive-$i && mkdir -p /tmp/rclone_cache/
+     chown -hR abc:abc /drives/drive-$i && chown -hR abc:abc /tmp/rclone_cache/
+     chmod -R 775 /drives/drive-$i && chmod -R 775 /tmp/rclone_cache/
   fi
-  if [ "$(ls /mnt/drive-$i | wc -l)" -gt 1 ]; then     
-    fusermount -uzq /mnt/drive-$i
+  if [ "$(ls /drives/drive-$i | wc -l)" -gt 1 ]; then     
+    fusermount -uzq /drives/drive-$i
   fi
   rm -rf ${SMOUNT}/$i-mount.sh
   rm -rf ${SRC}/$i-rc-file.sh
@@ -85,7 +87,7 @@ for i in ${mounts[@]}; do
   dday=$(date)
   RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
   echo ${RC_ADDRESS} >/tmp/RCPORT
-  echo -n "/mnt/drive-$i=NC:" >>/tmp/rclone-mount.file
+  echo -n "/drives/drive-$i=NC:" >>/tmp/rclone-mount.file
   echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
@@ -94,7 +96,7 @@ for i in ${mounts[@]}; do
 # All rights reserved. ##
 ##########################
 #\n
-rclone mount $i: /mnt/drive-$i \\
+rclone mount $i: /drives/drive-$i \\
     --config=${config} \\
     --log-file=/config/logs/rclone-$i.log \\
     --log-level=${LOGLEVEL} \\

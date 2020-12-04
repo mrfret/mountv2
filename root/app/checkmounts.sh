@@ -57,7 +57,7 @@ while true; do
   mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d')
   for i in ${mounts[@]}; do
   RCLONE_CHECK=$(rclone lsf $i:/.mountcheck-$i --config=${config})
-  MOUNT_CHECK="/mnt/drive-$i/.mountcheck-$i"
+  MOUNT_CHECK="/drives/drive-$i/.mountcheck-$i"
   if [ "${RCLONE_CHECK}" == ".mountcheck-$i" ] && [ -f "${MOUNT_CHECK}" ]; then
        log $i "-> is mounted and works <- [Mount]"
        truncate -s 2 ${SCHECK}/$i.mounted
@@ -71,7 +71,7 @@ while true; do
           logfailed $i " FAILED REMOUNT STARTS NOW [ WARNING ]"
        fi
        /usr/bin/rclone touch $i:/.mountcheck-$i --config=${config} --localtime
-       fusermount -uzq /mnt/drive-$i
+       fusermount -uzq /drives/drive-$i
        log "-> RE - Mounting $i <-"
        bash ${SMOUNT}/$i-mount.sh
        echo "remounted since $(date)" > ${SCHECK}/$i.mounted
