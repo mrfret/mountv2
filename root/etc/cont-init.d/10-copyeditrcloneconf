@@ -3,36 +3,36 @@
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
 function log() {
-echo "[Mount] ${1}"
+echo "[MOUNT] ${1}"
 }
+
+apk add --quiet --no-cache --no-progress wget curl bash unzip rclone
+
+wget --quiet https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip -O rclone.zip && \
+unzip -q rclone.zip && rm -rf /tmp/rclone.zip && \
+mv rclone*/rclone /usr/bin && rm -rf rclone*
+
 if [ ! -f "/config/rclone.conf" ]; then
    log "-->> [ WARNING ] no rclone.conf file found [ WARNING ] <<--"
-   sleep 60
-   exit 0
+   if [ ! -f "/config/rclone.conf" ]; then
+      log "-->> [ WARNING ] second check of rclone.conf failed [ WARNING ] <<--"
+      log "-->> [ WARNING ]    no rclone.conf file found       [ WARNING ] <<--"
+      sleep 60 && s6-svscanctl -t /var/run/s6/services
+   fi
 fi
-if [ ! -d "/config/rclone/" ]; then 
-   mkdir -p /config/rclone 
-fi
-if [ ! -d "/config/env/" ]; then 
-   mkdir -p /config/env 
-fi
-if [ -f "/config/rclone.conf" ]; then
-    log "-> Copying rclone.conf <-"
-        rm -f /config/rclone/rclone-docker.conf
-        cp /config/rclone.conf /config/rclone/rclone-docker.conf
+log "-> Copying rclone.conf <-"
+    rclonepad="/config/rclone/rclone-docker.conf"
+    mkdir -p /config/rclone
+    rm -f ${rclonepad}
+    find /config -name "rclone.conf" -type f -exec cp {} ${rclonepad} \;
     log "-> Make needed edits to rclone-docker.conf <-"
-        sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" /config/rclone/rclone-docker.conf
-        sed -i "s#/opt/appdata/uploader/#/config/keys/#g" /config/rclone/rclone-docker.conf
-        sed -i "s#/opt/appdata/services/uploader/keys/#/config/keys/#g" /config/rclone/rclone-docker.conf
-        sed -i "s#/opt/uploader/keys/#/config/keys/#g" /config/rclone/rclone-docker.conf
-        sed -i '/pgunion/{n;N;d;}' /config/rclone/rclone-docker.conf
-        sed -i '/pgunion/d' /config/rclone/rclone-docker.conf
-    log "-> rclone_docker.conf edits done <-"
-fi
-log "-> install rclone || start <-"
-    apk add unzip bash curl --quiet
-    wget --quiet https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip -O rclone.zip && \
-    unzip -q rclone.zip && rm rclone.zip && \
-    mv rclone*/rclone /usr/bin && rm -r rclone*
-log "-> install rclone || done <-"
+    sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" /config/rclone/rclone-docker.conf
+    sed -i "s#/opt/appdata/uploader/#/config/keys/#g" /config/rclone/rclone-docker.conf
+    sed -i "s#/opt/appdata/services/uploader/keys/#/config/keys/#g" /config/rclone/rclone-docker.conf
+    sed -i "s#/opt/uploader/keys/#/config/keys/#g" /config/rclone/rclone-docker.conf
+    sed -i '/pgunion/{n;N;d;}' /config/rclone/rclone-docker.conf
+    sed -i '/pgunion/d' /config/rclone/rclone-docker.conf
+log "-> rclone_docker.conf edits done <-"
+
+
 #<EOF>#
