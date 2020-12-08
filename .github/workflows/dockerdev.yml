@@ -53,11 +53,6 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
 
-      - name: Dive Analysis
-        uses: yuichielectric/dive-action@0.0.4
-        with:
-          image: "${{ steps.prep.outputs.tag }}"
-
       - name: Build and push
         id: docker_build
         uses: docker/build-push-action@v2
