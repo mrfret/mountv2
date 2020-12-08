@@ -64,5 +64,5 @@ jobs:
           platforms: linux/armhf
           push: true
           tags: |
-            ssudobox/sudobox-mount:arm32v7-alpine
-            ghcr.io/sudobox-io/docker-mount:arm32v7-alpine 
+            sudobox/sudobox-mount:armv7-alpine
+            ghcr.io/sudobox-io/docker-mount:armv7-alpine 
