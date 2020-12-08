@@ -13,8 +13,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=sudobox/${GITHUB_REPOSITORY//docker-/}
-          DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY//docker-/}
+          DOCKER_IMAGE=sudobox/sudobox-mount
           VERSION=nightly
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
