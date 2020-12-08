@@ -1,7 +1,7 @@
 name: Publish DEV Releases to Hub
 on:
   push:
-    branches: dev
+    branches: master
 
 jobs:
   docker:
@@ -14,24 +14,14 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=sudobox/sudobox-mount
-          VERSION=nightly
+          VERSION=dev
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
-          echo ::set-output name=vendor::${{ github.repository_owner }}
-
-      - name: Shellcheck
-        run: |
-          shellcheck --version
-          if [[ -d ./root ]]; then
-            find "./root" -type f -print -exec shellcheck {} \;
-          else
-            true
-          fi
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
-          platforms: linux/amd64,linux/armhf,linux/arm64,linux/arm32v7 
+          platforms: linux/amd64,linux/armhf,linux/arm64
 
       - name: Set up Docker Buildx
         id: buildx
@@ -59,12 +49,10 @@ jobs:
           builder: ${{ steps.buildx.outputs.name }}
           context: .
           file: ./Dockerfile
-          platforms: linux/amd64,linux/armhf,linux/arm64,linux/arm32v7 
+          platforms: linux/amd64,linux/armhf,linux/arm64
 
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.prep.outputs.tag }}
-          labels: |
-            org.opencontainers.image.vendor=${{ steps.prep.outputs.vendor }}
+          tags: ${{ steps.prep.outputs.tags }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
