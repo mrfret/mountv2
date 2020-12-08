@@ -13,7 +13,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=sudobox/${GITHUB_REPOSITORY}
+          DOCKER_IMAGE=sudobox/${GITHUB_REPOSITORY//docker-/}
           DOCKER_IMAGE=ghcr.io/${GITHUB_REPOSITORY//docker-/}
           VERSION=nightly
           TAGS="${DOCKER_IMAGE}:${VERSION}"
