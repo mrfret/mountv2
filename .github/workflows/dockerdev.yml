@@ -1,7 +1,7 @@
 name: Publish DEV Releases to Hub
 on:
   push:
-    branches: master
+    branches: dev
 
 jobs:
   docker:
@@ -14,7 +14,7 @@ jobs:
         id: prep
         run: |
           DOCKER_IMAGE=sudobox/sudobox-mount
-          VERSION=dev
+          VERSION=nightly
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
 
@@ -50,7 +50,6 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/armhf,linux/arm64
-
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.prep.outputs.tags }}
 
