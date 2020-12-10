@@ -13,7 +13,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=sudobox/${{ github.repository }}
+          DOCKER_IMAGE=sudobox/sudobox-mount
           VERSION=latest
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
