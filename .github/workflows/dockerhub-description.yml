@@ -22,5 +22,3 @@ jobs:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_TOKEN }}
           repository: sudobox/sudobox-mount
-          short-description: Alpine Based rclone mount with mergerfs included 
-
