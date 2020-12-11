@@ -1,4 +1,4 @@
-name: Publish Releases to Hub
+name: Publish V Releases to Hub
 
 # Only trigger on semver shaped tags.
 on:
@@ -41,7 +41,6 @@ jobs:
           echo "CI_WORKFLOW=$CI_WORKFLOW"
           echo "CI_ACTION=$CI_ACTION"
 
-
       - name: Prepare
         id: prep
         run: |
@@ -55,7 +54,6 @@ jobs:
           echo ::set-output name=title::${GITHUB_REPOSITORY}
           echo ::set-output name=version::${VERSION}
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
-
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
