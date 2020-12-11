@@ -57,10 +57,10 @@ jobs:
         run: |
           REPO=$CI_REPOSITORY_NAME
           DOCKER_IMAGE=${{ secrets.DOCKER_USER }}/${REPO}
-          if [ "${GITHUB_REF#refs/*/}" == "dev" ]; then
-            VERSION=nightly
-          else
+          if [ "$CI_REF_NAME" != "dev" ]; then
             VERSION=latest
+          else
+            VERSION=nightly
           fi
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
