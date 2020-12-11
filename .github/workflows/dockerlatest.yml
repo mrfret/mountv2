@@ -10,12 +10,19 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+
+      - uses: FranzDiebold/github-env-vars-action@v2
+      - name: Print environment variables
+        run: |
+          echo "CI_REPOSITORY_NAME=$CI_REPOSITORY_NAME
+
       - name: Prepare
         id: prep
         run: |
+          REPO="${GITHUB_REPOSITORY} |sed 's/.*://g'"
           DOCKER_IMAGE=${{ secrets.DOCKER_USER }}/${REPO}
           VERSION=latest
-          REPO="${GITHUB_REPOSITORY} | sed 's/.*://g'"
+          #REPO="${GITHUB_REPOSITORY} | sed 's/.*://g'"
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
           echo ::set-output name=title::${GITHUB_REPOSITORY}
