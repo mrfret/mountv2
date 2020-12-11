@@ -1,7 +1,8 @@
-name: Publish latest Releases to Hub
+name: Publish Releases to Hub
 on:
   push:
-    branches: master
+    branches-ignore:
+      - 'dependabot/**'
 
 jobs:
   docker:
