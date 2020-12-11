@@ -8,7 +8,7 @@ echo "[MERGERFS] ${1}"
 
 log "-> Configure MergerFS || start <- [MERGERFS]"
 rm -rf /tmp/mergerfs_version
-curl -s https://api.github.com/repos/trapexit/mergerfs/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' > /tmp/mergerfs_version
+curl -sX GET https://api.github.com/repos/trapexit/mergerfs/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' > /tmp/mergerfs_version
 if [[ $(command -v mergerfs) == "" ]]; then
    echo "0" >/tmp/mergerfs_stored
 else
@@ -16,7 +16,7 @@ else
 fi
 if [[ `cat /tmp/mergerfs_version` != `cat /tmp/mergerfs_stored` ]]; then
    rm -rf /tmp/mergerfs_version && rm -rf /tmp/mergerfs
-   curl -s https://api.github.com/repos/trapexit/mergerfs/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' > /tmp/mergerfs_version
+   curl -sX GET https://api.github.com/repos/trapexit/mergerfs/releases/latest | grep -oP '"tag_name": "\K(.*)(?=")' > /tmp/mergerfs_version
    log "-> Install now MergerFS Version `cat /tmp/mergerfs_version` <- [MERGERFS]"
    apk --quiet --no-cache --no-progress add \
       fuse libattr libstdc++ autoconf automake \
