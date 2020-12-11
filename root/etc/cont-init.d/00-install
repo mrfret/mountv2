@@ -3,7 +3,7 @@
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
 function log() {
-echo "[UPLOADER] ${1}"
+echo "[MOUNT] ${1}"
 }
 
 
