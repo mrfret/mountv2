@@ -13,7 +13,7 @@ jobs:
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=${{ secrets.DOCKER_USER }}/mount
+          DOCKER_IMAGE=${{ secrets.DOCKER_USER }}/${GITHUB_REF#refs/*/}
           VERSION=nightly
           TAGS="${DOCKER_IMAGE}:${VERSION}"
           echo ::set-output name=tags::${TAGS}
