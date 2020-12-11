@@ -1,7 +1,5 @@
 name: Publish Releases to Hub
 
-# When its time to do a release do a full cross platform build for all supported
-# architectures and push all of them to Docker Hub.
 # Only trigger on semver shaped tags.
 on:
   push:
@@ -15,15 +13,49 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
+      - uses: FranzDiebold/github-env-vars-action@v2
+      - name: Print environment variables
+        run: |
+          echo "CI_REPOSITORY_SLUG=$CI_REPOSITORY_SLUG"
+          echo "CI_REPOSITORY_OWNER=$CI_REPOSITORY_OWNER"
+          echo "CI_REPOSITORY_OWNER_SLUG=$CI_REPOSITORY_OWNER_SLUG"
+          echo "CI_REPOSITORY_NAME=$CI_REPOSITORY_NAME"
+          echo "CI_REPOSITORY_NAME_SLUG=$CI_REPOSITORY_NAME_SLUG"
+          echo "CI_REPOSITORY=$CI_REPOSITORY"
+          echo "CI_REF_SLUG=$CI_REF_SLUG"
+          echo "CI_ACTION_REF_NAME=$CI_ACTION_REF_NAME"
+          echo "CI_ACTION_REF_NAME_SLUG=$CI_ACTION_REF_NAME_SLUG"
+          echo "CI_REF_NAME=$CI_REF_NAME"
+          echo "CI_REF_NAME_SLUG=$CI_REF_NAME_SLUG"
+          echo "CI_REF=$CI_REF"
+          echo "CI_HEAD_REF_SLUG=$CI_HEAD_REF_SLUG"
+          echo "CI_HEAD_REF=$CI_HEAD_REF"
+          echo "CI_BASE_REF_SLUG=$CI_BASE_REF_SLUG"
+          echo "CI_BASE_REF=$CI_BASE_REF"
+          echo "CI_SHA_SHORT=$CI_SHA_SHORT"
+          echo "CI_SHA=$CI_SHA"
+          echo "CI_ACTOR=$CI_ACTOR"
+          echo "CI_EVENT_NAME=$CI_EVENT_NAME"
+          echo "CI_RUN_ID=$CI_RUN_ID"
+          echo "CI_RUN_NUMBER=$CI_RUN_NUMBER"
+          echo "CI_WORKFLOW=$CI_WORKFLOW"
+          echo "CI_ACTION=$CI_ACTION"
+
+
       - name: Prepare
         id: prep
         run: |
-          DOCKER_IMAGE=${{ secrets.DOCKER_USER }}/${GITHUB_REF#refs/*/}
-          VERSION=edge
+          REPO=$CI_REPOSITORY_NAME
+          DOCKER_IMAGE=${{ secrets.DOCKER_USER }}/${REPO}
+           VERSION=edge
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
           fi
           echo ::set-output name=tags::${TAGS}
+          echo ::set-output name=title::${GITHUB_REPOSITORY}
+          echo ::set-output name=version::${VERSION}
+          echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -57,8 +89,11 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/amd64,linux/armhf,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.prep.outputs.tags }}
+          labels: |
+            org.opencontainers.image.title=${{ steps.prep.outputs.title }}
+            org.opencontainers.image.version=${{ steps.prep.outputs.version }}
+            org.opencontainers.image.date=${{ steps.prep.outputs.date }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
