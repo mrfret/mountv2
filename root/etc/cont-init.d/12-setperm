@@ -8,11 +8,9 @@ echo "[Mount] ${1}"
 }
 log "-> Setting Permissions || start <-"
 
-folder="/var/lib/nginx/ /config /app /root"
+folder="/config /app /root"
 
 for i in ${folder}; do
-  mkdir -p /var/lib/nginx/logs/
-  mkdir -p /var/lib/nginx/tmp/
   find $i -exec chmod a=rx,u+w {} \;
   find $i -exec chown -hR abc:abc {} \;
   chown -cf abc:abc /root
