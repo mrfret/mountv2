@@ -69,7 +69,7 @@ log "**** update system ****"
 apk --quiet --no-cache --no-progress update
 log "**** install build packages ****"
 apk add --quiet --no-cache --no-progress \
-    ca-certificates logrotate shadow bash bc findutils coreutils openssl 
+    ca-certificates logrotate shadow bash bc findutils coreutils openssl \
     curl libxml2-utils tzdata openntpd grep tar
 log "**** upgrade system ****"
 apk --quiet --no-cache --no-progress upgrade
