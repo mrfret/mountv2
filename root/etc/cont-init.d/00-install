@@ -26,13 +26,13 @@ function install_rclone() {
 local AVAILABLE_RCLONE
 AVAILABLE_RCLONE=$(curl -fsLs "https://api.github.com/repos/ncw/rclone/releases/latest" | grep -oP '"tag_name": "[Vv]?\K.*?(?=")')
    log "-> please hold the line ...... <- [MOUNT]"
-   rm -rf /tmp/rclone-*-linux-amd64 && \
-   rm -rf /tmp/rclone.zip && \
-   curl -so /tmp/rclone.zip  https://downloads.rclone.org/rclone-current-linux-amd64.zip && \
-   chown abc:abc /tmp/rclone.zip 1>/dev/null 2>&1 && \
-   unzip -q /tmp/rclone.zip && \
-   rm -rf /tmp/rclone.zip && \
-   mv /tmp/rclone-*-linux-amd64/rclone /usr/bin && \
+   rm -rf /tmp/rclone-*-linux-amd64
+   rm -rf /tmp/rclone.zip
+   curl -so /tmp/rclone.zip  https://downloads.rclone.org/rclone-current-linux-amd64.zip
+   chown abc:abc /tmp/rclone.zip 1>/dev/null 2>&1
+   unzip -q /tmp/rclone.zip
+   rm -rf /tmp/rclone.zip 
+   mv /tmp/rclone-*-linux-amd64/rclone /usr/bin
    rm -rf /tmp/rclone-*-linux-amd64
    chown abc:abc /usr/bin/rclone 1>/dev/null 2>&1
    chmod 755 /usr/bin/rclone 1>/dev/null 2>&1
