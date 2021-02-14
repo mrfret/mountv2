@@ -8,10 +8,6 @@ echo "[MOUNT] ${1}"
 
 apk add --quiet --no-cache --no-progress wget curl bash unzip rclone
 
-wget --quiet https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip -O rclone.zip && \
-unzip -q rclone.zip && rm -rf /tmp/rclone.zip && \
-mv rclone*/rclone /usr/bin && rm -rf rclone*
-
 log "*** checking rclone.conf"
 while [ ! -f "/config/rclone.conf" ]; do
    log "-->> [ WARNING ] ------------------------- [ WARNING ] <<--"
@@ -22,10 +18,9 @@ while [ ! -f "/config/rclone.conf" ]; do
 done
 
 log "-> Copying rclone.conf <-"
-    rclonepad="/config/rclone/rclone-docker.conf"
     mkdir -p /config/{rclone,env,discord,logs,rc-purge,rc-refresh,scripts}
-    rm -f ${rclonepad}
-    find /config -name "rclone.conf" -type f -exec cp {} ${rclonepad} \;
+    rm -f /config/rclone/rclone-docker.conf
+    find /config -name "rclone.conf" -type f -exec cp {} /config/rclone/rclone-docker.conf \;
     log "-> Make needed edits to rclone-docker.conf <-"
     sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" /config/rclone/rclone-docker.conf
     sed -i "s#/opt/appdata/uploader/#/config/keys/#g" /config/rclone/rclone-docker.conf
