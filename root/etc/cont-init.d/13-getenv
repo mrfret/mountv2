@@ -22,7 +22,9 @@ if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
    VFS_CACHE_MAX_SIZE=${endvalue}G
 else
    VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}G
+   sed -i "s#VFS_CACHE_MAX_SIZE=G#VFS_CACHE_MAX_SIZE=50G#g" /config/env/rclone.env
 fi
+
 
 ## function source end
 UAGENT=${UAGENT:-null}
