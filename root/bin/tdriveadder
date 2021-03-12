@@ -9,7 +9,7 @@
 ## add unencrypt tdrive support           #
 ###########################################
 
-add () {
+add() {
 echo -e "Add new Tdrive^ (y/n)";read -i n yes_yn
 if [ "${yes_yn,,}" != "y" ];then
   echo -e "exit \n"
