@@ -110,7 +110,7 @@ jobs:
           labels: |
             org.opencontainers.image.title=${{ steps.prep.outputs.title }}
             org.opencontainers.image.version=${{ steps.prep.outputs.version }}
-            org.opencontainers.image.date=${{ steps.prep.outputs.date }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.date }}
 
       - name: Image digest
         run: echo ${{ steps.docker_build.outputs.digest }}
