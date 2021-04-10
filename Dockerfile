@@ -1,7 +1,7 @@
 ######################################################
 # All rights reserved.                               #
 # started from Zero                                  #
-# Docker owned from sudobox.io                       #
+# Docker owned from doob187                          #
 ######################################################
 FROM lsiobase/alpine:3.13
 LABEL maintainer=sudobox.io
