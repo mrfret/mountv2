@@ -5,10 +5,12 @@ echo "[UPDATE] ${1}"
 }
 # function source start
 log "-> update rclone || start <-"
-    apk add unzip bash curl --quiet
-    wget --quiet https://beta.rclone.org/rclone-beta-latest-linux-amd64.zip -O rclone.zip && \
-    unzip -q rclone.zip && rm rclone.zip && \
-    mv rclone*/rclone /usr/bin && rm -r rclone*
+    apk add unzip bash wget --quiet
+    wget https://downloads.rclone.org/rclone-current-linux-amd64.zip -qO rclone.zip && \
+    unzip -q rclone.zip && \
+    rm -f rclone.zip && \
+    mv rclone-*-linux-amd64/rclone /usr/bin/ && \
+    rm -rf rclone-**
 if [[ $(command -v rclone | wc -l) == "1" ]]; then
     chown -cf abc:abc /root/
 fi
