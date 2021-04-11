@@ -6,8 +6,6 @@ function log() {
 echo "[MOUNT] ${1}"
 }
 
-apk add --quiet --no-cache --no-progress wget curl bash unzip rclone
-
 log "*** checking rclone.conf"
 while [ ! -f "/config/rclone.conf" ]; do
    log "-->> [ WARNING ] ------------------------- [ WARNING ] <<--"
