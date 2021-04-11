@@ -4,7 +4,8 @@
 # Docker owned from doob187                          #
 ######################################################
 FROM lsiobase/alpine:3.13
-LABEL maintainer=sudobox.io
+LABEL maintainer=doob187
+LABEL org.opencontainers.image.source https://github.com/doob187/mountv2
 
 RUN \
   echo "**** install build packages ****" && \
