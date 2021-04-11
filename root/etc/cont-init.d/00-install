@@ -5,88 +5,43 @@
 function log() {
 echo "[MOUNT] ${1}"
 }
-function startcommand() {
+
 addgroup -g 911 abc 1>/dev/null 2>&1
 adduser -u 911 -D -G abc abc 1>/dev/null 2>&1
-install
-}
-function install() {
 apk add --quiet --no-cache --no-progress wget curl bash unzip
 log "-> Configure RCLONE || start <- [RCLONE]"
-if [[ $(command -v rclone) == "" ]]; then
-   install_rclone
-   endbanner
-   update
-else
-   reinstall_rclone
-   endbanner
-fi
-}
-function install_rclone() {
-local AVAILABLE_RCLONE
-AVAILABLE_RCLONE=$(curl -fsLs "https://api.github.com/repos/ncw/rclone/releases/latest" | grep -oP '"tag_name": "[Vv]?\K.*?(?=")')
-   log "-> please hold the line ...... <- [MOUNT]"
-   rm -rf /tmp/rclone-*-linux-amd64
-   rm -rf /tmp/rclone.zip
-   curl -so /tmp/rclone.zip  https://downloads.rclone.org/rclone-current-linux-amd64.zip
-   chown abc:abc /tmp/rclone.zip 1>/dev/null 2>&1
-   unzip -q /tmp/rclone.zip
-   rm -rf /tmp/rclone.zip 
-   mv /tmp/rclone-*-linux-amd64/rclone /usr/bin
-   rm -rf /tmp/rclone-*-linux-amd64
-   chown abc:abc /usr/bin/rclone 1>/dev/null 2>&1
-   chmod 755 /usr/bin/rclone 1>/dev/null 2>&1
-   log "-> Yippee-ki-yay, motherfucker! it's done <- [MOUNT]"
-   log "-> Installed rclone Version $(rclone --version | awk '{print $2}' | head -n 1 | sed -e 's/v//g' | cut -c1-6) <- [MOUNT]"
-}
+log "-> please hold the line ...... <- [MOUNT]"
 
-function reinstall_rclone() {
-local AVAILABLE_RCLONE
-local LOCAL_RCLONE
-AVAILABLE_RCLONE=$(curl -fsLs "https://api.github.com/repos/ncw/rclone/releases/latest" | grep -oP '"tag_name": "[Vv]?\K.*?(?=")')
-LOCAL_RCLONE=$(rclone --version | awk '{print $2}' | head -n 1 | sed -e 's/v//g' | cut -c1-6)
-if [[ ${AVAILABLE_RCLONE} != ${LOCAL_RCLONE} ]]; then
-   log "-> please hold the line ...... <- [MOUNT]"
-   rm -rf /tmp/rclone-*-linux-amd64 && \
-   rm -rf /tmp/rclone.zip && \
-   curl -so /tmp/rclone.zip  https://downloads.rclone.org/rclone-current-linux-amd64.zip && \
-   chown abc:abc /tmp/rclone.zip 1>/dev/null 2>&1 && \
-   unzip -q /tmp/rclone.zip && \
-   rm -rf /tmp/rclone.zip && \
-   mv /tmp/rclone-*-linux-amd64/rclone /usr/bin && \
-   rm -rf /tmp/rclone-*-linux-amd64
-   chown abc:abc /usr/bin/rclone 1>/dev/null 2>&1
-   chmod 755 /usr/bin/rclone 1>/dev/null 2>&1
-   log "-> Yippee-ki-yay, motherfucker! it's done <- [MOUNT]"
-   log "-> Installed rclone Version $(rclone --version | awk '{print $2}' | head -n 1 | sed -e 's/v//g' | cut -c1-6) <- [MOUNT]"
-   update
-else
-   update
-fi
-}
-function update() {
+wget https://downloads.rclone.org/rclone-current-linux-amd64.zip -qO rclone.zip && \
+unzip -q rclone.zip && \
+rm -f rclone.zip && \
+mv rclone-*-linux-amd64/rclone /usr/bin/ && \
+rm -rf rclone-**
+
+chown abc:abc /usr/bin/rclone 1>/dev/null 2>&1
+chmod 755 /usr/bin/rclone 1>/dev/null 2>&1
+rm -rf /tmp/rclone** 1>/dev/null 2>&1
+log "-> Yippee-ki-yay, motherfucker! it's done <- [MOUNT]"
+log "-> Installed rclone Version $(rclone --version | awk '{print $2}' | head -n 1 | sed -e 's/v//g' | cut -c1-6) <- [MOUNT]"
+
 log "**** update system ****" 
 apk --quiet --no-cache --no-progress update
 log "**** install build packages ****"
 apk add --quiet --no-cache --no-progress \
     ca-certificates logrotate shadow bash bc findutils coreutils openssl \
-    curl libxml2-utils tzdata openntpd grep tar
+    curl libxml2-utils tzdata openntpd grep tar musl
 log "**** upgrade system ****"
 apk --quiet --no-cache --no-progress upgrade
 apk --quiet --no-progress --no-cache fix
 apk del --quiet --clean-protected --no-progress
+apk del --quiet --no-cache nginx
 rm -rf /var/cache/apk/*
 
 rm -rf /etc/nginx/nginx.conf
-}
-function endbanner() {
+
 pids="$(pgrep 'nginx')"
 if [ "$pids" != "" ]; then
   kill -15 $pids
-  apk del --quiet --no-cache nginx
-  apk del --quiet --clean-protected --no-progress
-  sleep 2
 fi
-}
-startcommand
+
 #EOF#
