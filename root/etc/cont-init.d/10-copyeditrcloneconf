@@ -7,12 +7,16 @@ echo "[MOUNT] ${1}"
 }
 
 log "*** checking rclone.conf"
-while [ ! -f "/config/rclone.conf" ]; do
+while true; do
+if [[ ! -f "/config/rclone.conf" ]];then
    log "-->> [ WARNING ] ------------------------- [ WARNING ] <<--"
    log "-->> [ WARNING ] no rclone.conf file found [ WARNING ] <<--"
    log "-->> [ WARNING ]       sleeping for 30s    [ WARNING ] <<--"
    log "-->> [ WARNING ] ------------------------- [ WARNING ] <<--"
-   sleep 30 
+   sleep 3 && continue
+else
+   sleep 1 && break
+fi
 done
 
 log "-> Copying rclone.conf <-"
