@@ -54,7 +54,7 @@ if [[ ${remotes} == "false" ]];then fusermount -uzq /mnt/remotes;fi
 rm -rf ${SMOUNT}/union-mount.sh \
        ${SRC}/union-rc-file.sh 
 touch /config/logs/rclone-union.log
-chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
+mkdir -p /config/logs/ && chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
 truncate -s 0 /config/logs/**.log >> /dev/null
 ddaylic=$(date +"%Y")
 dday=$(date)
@@ -67,7 +67,7 @@ echo -e "#!/usr/bin/with-contenv bash
 # All rights reserved. ##
 ##########################
 #\n
-rclone mount union: /mnt/remotes \\
+rclone mount remote: /mnt/remotes \\
     --config=${config} \\
     --log-file=/config/logs/rclone-union.log \\
     --log-level=${LOGLEVEL} \\
