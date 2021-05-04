@@ -64,7 +64,7 @@ mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
 mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
 if [[ -f "${SMOUNT}/union-mount.sh" ]];then
    bash ${SMOUNT}/union-mount.sh
-   echo "mounted since $(date)"
+   echo "rclone_union is mounted since $(date)"
 fi
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
@@ -73,6 +73,15 @@ echo -e "allow_other,rw,statfs_ignore=nc,async_read=false,use_ino,func.getattr=n
 MGFS=$(cat /tmp/mergerfs_mount_file)
 mergerfs -o ${MGFS} ${UFSPATH} /mnt/unionfs
 sleep 5
+### remove old check files ( not needed anymore )
+IFS=$'\n'
+filter="$1"
+config=/config/rclone/rclone-docker.conf
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/remote/d' | sed '/GDSA/d')
+for i in ${mounts[@]}; do
+    rm -rf /mnt/unionfs/.mountcheck-$i
+done
+###
 #### CHECK DOCKER.SOCK ####
 dockersock=$(curl --silent --output /dev/null --show-error --fail --unix-socket /var/run/docker.sock http://localhost/images/json)
 #### RESTART DOCKER #### 
