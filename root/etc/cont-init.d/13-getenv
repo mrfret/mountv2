@@ -7,7 +7,7 @@ drivespace=$(df -BG /mnt --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//
 checkspace=$(echo $(( ( ${drivespace} ) /3 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
 if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
-   VFS_CACHE_MAX_SIZE=${checkspace}G
+   VFS_CACHE_MAX_SIZE=${checkspace}
 else
    VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
    sed -i "s#VFS_CACHE_MAX_SIZE=G#VFS_CACHE_MAX_SIZE=50G#g" /config/env/rclone.env
@@ -34,7 +34,7 @@ VFS_CACHE_POLL_INTERVAL=${VFS_CACHE_POLL_INTERVAL:-2m}
 VFS_READ_CHUNK_SIZE=${VFS_READ_CHUNK_SIZE:-128M}
 VFS_READ_CHUNK_SIZE_LIMIT=${VFS_READ_CHUNK_SIZE_LIMIT:-4096M}
 VFS_CACHE_MODE=${VFS_CACHE_MODE:-full}
-VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
+VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}G
 VFS_REFRESH=${VFS_REFRESH:-12h}
 BUFFER_SIZE=${BUFFER_SIZE:-32M}
 PUID=${PUID:-911}
