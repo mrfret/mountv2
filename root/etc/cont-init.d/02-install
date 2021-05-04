@@ -8,7 +8,7 @@ echo "[MOUNT] ${1}"
 
 addgroup -g 911 abc 1>/dev/null 2>&1
 adduser -u 911 -D -G abc abc 1>/dev/null 2>&1
-apk add --quiet --no-cache --no-progress wget curl bash unzip
+apk add --quiet --no-cache --no-progress wget curl bash unzip fuse
 log "-> Configure RCLONE || start <- [RCLONE]"
 log "-> please hold the line ...... <- [MOUNT]"
 
@@ -29,7 +29,7 @@ apk --quiet --no-cache --no-progress update
 log "**** install build packages ****"
 apk add --quiet --no-cache --no-progress \
     ca-certificates logrotate shadow bash bc findutils coreutils openssl \
-    curl libxml2-utils tzdata openntpd grep tar musl
+    curl libxml2-utils tzdata openntpd grep tar musl fuse
 log "**** upgrade system ****"
 apk --quiet --no-cache --no-progress upgrade
 apk --quiet --no-progress --no-cache fix
