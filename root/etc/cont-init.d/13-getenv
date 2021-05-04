@@ -2,17 +2,9 @@
 # shellcheck shell=bash
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
-source /config/env/rclone.env
-SCACHE=${TMPRCLONE}
-if [ ! -d ${SCACHE} ]; then   
-   echo " -> Creating  RCLONE_CACHE Folder <- "
-   rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
-else
-   echo " -> RCLONE_CACHE Folder exist || so skipping <- "
-   chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
-fi
+
 config=/config/rclone/rclone-docker.conf
-drivespace=$(df -BG ${TMPRCLONE} --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
+drivespace=$(df -BG /mnt --local | tail -n +2 | awk '{print $4}' | sed -e 's/G//g')
 checkspace=$(echo $(( ( ${drivespace} ) /3 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
 if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
@@ -64,4 +56,13 @@ discordenv=/config/env/discord.env
 if [[ -f "${discordenv}" ]];then rm -rf ${discordenv};fi
 # TZdate
 apk --quiet --no-cache --no-progress add tzdata
+SCACHE=${TMPRCLONE}
+if [ ! -d ${SCACHE} ]; then   
+   echo " -> Creating  RCLONE_CACHE Folder <- "
+   rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+else
+   echo " -> RCLONE_CACHE Folder exist || so skipping <- "
+   chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
+fi
+
 #<EOF<#
