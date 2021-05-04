@@ -63,6 +63,7 @@ mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
 mkdir -p ${SCHECK} && chown -hR abc:abc ${SCHECK} && chmod -R 775 ${SCHECK}
 if [[ -f "${SMOUNT}/union-mount.sh" ]];then
+   if [[ ! -f  "/config/logs/rclone-union.log" ]];then touch /config/logs/rclone-union.log;fi
    bash ${SMOUNT}/union-mount.sh
    echo "rclone_union is mounted since $(date)"
 fi
