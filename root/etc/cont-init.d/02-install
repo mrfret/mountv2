@@ -37,7 +37,12 @@ apk del --quiet --clean-protected --no-progress
 apk del --quiet --no-cache nginx
 rm -rf /var/cache/apk/*
 
+#Migrate to rclone-union version
 rm -rf /etc/nginx/nginx.conf
+folder="/config/check /config/discord /config/logs /config/rc-purge /config/rc-refresh /config/rclone /config/scripts"
+for i in ${folder};do
+    rm -rf $i 1>/dev/null 2>&1
+done
 
 pids="$(pgrep 'nginx')"
 if [ "$pids" != "" ]; then

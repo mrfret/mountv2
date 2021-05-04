@@ -5,7 +5,7 @@
 function log() {
 echo "[MOUNT] ${1}"
 }
-
+if [[ -f "/config/rclone/rclone-docker.conf" ]];then rm -f /config/rclone/rclone-docker.conf;fi
 log "*** checking rclone.conf"
 while true; do
 if [[ ! -f "/config/rclone.conf" ]];then
@@ -18,10 +18,12 @@ else
    sleep 1 && break
 fi
 done
+folder="/config/check /config/discord /config/logs /config/rc-purge /config/rc-refresh /config/rclone /config/scripts"
+for i in ${folder};do
+   mkdir $i 1>/dev/null 2>&1
+done
 
 log "-> Copying rclone.conf <-"
-    mkdir -p /config/{rclone,env,discord,logs,rc-purge,rc-refresh,scripts}
-    rm -f /config/rclone/rclone-docker.conf
     find /config -name "rclone.conf" -type f -exec cp {} /config/rclone/rclone-docker.conf \;
     log "-> Make needed edits to rclone-docker.conf <-"
     sed -i "s#/opt/appdata/plexguide/.blitzkeys/#/config/keys/#g" /config/rclone/rclone-docker.conf

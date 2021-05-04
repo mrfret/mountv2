@@ -27,83 +27,54 @@ echo "
    UAGENT                         ${UAGENT}
    PUID                           ${PUID}
    PGID                           ${PGID}
-"
-source /config/env/discord.env
-echo "
-   DISCORD_WEBHOOK_URL            ${DISCORD_WEBHOOK_URL}
-   DISCORD_EMBED_TITEL            ${DISCORD_EMBED_TITEL}
-   DISCORD_NAME_OVERRIDE          ${DISCORD_NAME_OVERRIDE}
-   DISCORD_ICON_OVERRIDE          ${DISCORD_ICON_OVERRIDE}
--------------------------------------------------------
+   TMPRCLONE                      ${TMPRCLONE}
 "
 ##### FOLDER START #####
 SMOUNT=/config/scripts
 SRC=/config/rc-refresh
-SRP=/config/rc-purge
 SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
-SCACHE=/tmp/rclone_cache
-DFOLD=/config/discord
+SCACHE=${TMPRCLONE}
 LOGS=/config/logs
-DRV=/drives
 rm -rf ${LOGS} && mkdir -p ${LOGS} && chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
 rm -rf ${SRC} && mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
-rm -rf ${SRP} && mkdir -p ${SRP} && chown -hR abc:abc ${SRP} && chmod -R 775 ${SRP}
 rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
-rm -rf ${DFOLD} && mkdir -p ${DFOLD} && chown -hR abc:abc ${DFOLD} && chmod -R 775 ${DFOLD}
-
-mkdir -p ${DRV} && chown -hR abc:abc ${DRV} && chmod -R 775 ${DRV}
 mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
-#mkdir -p ${SDOWN} && chown -hR abc:abc ${SDOWN} && chmod -R 775 ${SDOWN}
-#mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION}
-
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
-rm -rf /tmp/RC_ADDRESS && echo "5572" > /tmp/RCPORT
-## function source start
-IFS=$'\n'
-filter="$1"
 config=/config/rclone/rclone-docker.conf
-mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed -e 's/://g' | sed '/GDSA/d' | sort -r)
 ##### RUN MOUNT #####
-for i in ${mounts[@]}; do
-  if [ ! -d "/drives/drive-$i" ]; then     
-     mkdir -p /drives/drive-$i && mkdir -p /tmp/rclone_cache/
-     chown -hR abc:abc /drives/drive-$i && chown -hR abc:abc /tmp/rclone_cache/
-     chmod -R 775 /drives/drive-$i && chmod -R 775 /tmp/rclone_cache/
-  fi
-  if [ "$(ls /drives/drive-$i | wc -l)" -gt 1 ]; then     
-    fusermount -uzq /drives/drive-$i
-  fi
-  rm -rf ${SMOUNT}/$i-mount.sh
-  rm -rf ${SRC}/$i-rc-file.sh
-  rm -rf ${SMOUNT}/$i-rc-file.sh
-  rm -rf ${SRP}/$i-rc-file.sh
-  rclone touch $i:/.mountcheck-$i --config=${config} --localtime >> /dev/null
-  touch /config/logs/rclone-$i.log
-  chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
-  truncate -s 0 /config/logs/**.log >> /dev/null
-  ddaylic=$(date +"%Y")
-  dday=$(date)
-  RC_ADDRESS=$(echo $(( $(cat /tmp/RCPORT) +1)))
-  echo ${RC_ADDRESS} >/tmp/RCPORT
-  echo -n "/drives/drive-$i=NC:" >>/tmp/rclone-mount.file
-  echo -e "#!/usr/bin/with-contenv bash
+if [ ! -d "/mnt/remotes" ]; then     
+   mkdir -p /mnt/remotes && mkdir -p ${TMPRCLONE}
+   chown -hR abc:abc /mnt/remotes && chown -hR abc:abc ${TMPRCLONE}
+   chmod -R 775 /mnt/remotes && chmod -R 775 ${TMPRCLONE}
+fi
+remotes=$(mountpoint -q /mnt/remotes && echo true || echo false)
+if [[ ${remotes} == "false" ]];then fusermount -uzq /mnt/remotes;fi
+rm -rf ${SMOUNT}/union-mount.sh \
+       ${SRC}/union-rc-file.sh 
+touch /config/logs/rclone-union.log
+chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
+truncate -s 0 /config/logs/**.log >> /dev/null
+ddaylic=$(date +"%Y")
+dday=$(date)
+echo -n "/mnt/downloads=RW:/mnt/remotes=NC" >>/tmp/rclone-mount.file
+echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
-# rclone mount for $i over-shell-exec-command ##
+# rclone mount for union over-shell-exec-command ##
 # create day = ${dday}
 # All rights reserved. ##
 ##########################
 #\n
-rclone mount $i: /drives/drive-$i \\
+rclone mount union: /mnt/remotes \\
     --config=${config} \\
-    --log-file=/config/logs/rclone-$i.log \\
+    --log-file=/config/logs/rclone-union.log \\
     --log-level=${LOGLEVEL} \\
     --uid=${PUID} --gid=${PGID} \\
     --allow-other --allow-non-empty \\
     --timeout=1h --use-mmap \\
-    --cache-dir=/tmp/rclone_cache/ \\
+    --cache-dir=${TMPRCLONE} \\
     --tpslimit=8 --tpslimit-burst=8 \\
     --no-modtime --no-seek \\
     --ignore-errors --poll-interval=30s \\
@@ -118,47 +89,38 @@ rclone mount $i: /drives/drive-$i \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --rc --rc-no-auth --rc-addr=localhost:${RC_ADDRESS} \\
-    --daemon \n" >> ${SMOUNT}/$i-mount.sh
-
+    --rc --rc-no-auth --rc-addr=localhost:5572 \\
+    --daemon \n" >> ${SMOUNT}/union-mount.sh
+## rclone union
+value=/home/rcunion.union
+if [[ -f ${value} ]];then rm ${value}; fi
+IFS=$'\n'
+filter="$1"
+config=/config/rclone/rclone-docker.conf
+mapfile -t mounts < <(eval rclone listremotes --config=${config} | grep "$filter" | sed '/remote/d' | sed '/GDSA/d' | sort -r)
+for i in ${mounts[@]}; do
+   echo -n "$i " >> ${value}
+done
+sleep 2
+mapfile -t mapped < <(eval cat ${value})
+for i in ${mapped[@]}; do
+   rclone config create remote union upstreams $i search_policy 'all' --config=${config}
+done
 ##vfs-refresh
 echo -e "#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
-# rclone rc vfs/refresh for $i over-shell-exec-command ##
+# rclone rc vfs/refresh for union over-shell-exec-command ##
 # create day = ${dday}
 # All rights reserved. ##
 ##########################
 #\n
 rclone rc vfs/refresh recursive=true \\
        --rc-no-auth --rc-addr=localhost:${RC_ADDRESS} \\
-       --log-file=/config/logs/rc-refresh-$i.log \\
+       --log-file=/config/logs/rc-refresh-union.log \\
        --log-level=${LOGLEVEL_RC} \n
-#<EOF>#" >> ${SRC}/$i-rc-file.sh
-    chmod a+x ${SRC}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
-    chown -hR abc:abc /tmp/rclone_cache/
-    log "-->> rclone rc refresh file created for $i <<--"
-
-##renote cleanup
-echo -e "#!/usr/bin/with-contenv bash
-# shellcheck shell=bash ##
-# Copyright (c) ${ddaylic}, MrDoob ##
-# rclone purge empty folders for $i over-shell-exec-command ##
-# create day = ${dday}
-# All rights reserved. ##
-##########################
-#\n
-rclone rmdirs $i: \\
-       --drive-use-trash=false \\
-       --fast-list --transfers=50 \\
-       --config=${config}
-#\n
-rclone rc operations/cleanup \\
-       --rc-no-auth fs=$i: remote= \\
-       --rc-addr=localhost:${RC_ADDRESS} \n
-#<EOF>#" >> ${SRP}/$i-rc-file.sh
-    chmod a+x ${SRP}/$i-rc-file.sh && chown -hR abc:abc ${SRC}/$i-rc-file.sh
-    chown -hR abc:abc /tmp/rclone_cache/
-    log "-->> rclone rc auto purge empty folder created for $i <<--"
-done
+#<EOF>#" >> ${SRC}/union-rc-file.sh
+    chmod a+x ${SRC}/union-rc-file.sh && chown -hR abc:abc ${SRC}/union-rc-file.sh
+    chown -hR abc:abc /mnt/rclone_cache
+    log "-->> rclone rc refresh file created for union <<--"
 #EOF#
