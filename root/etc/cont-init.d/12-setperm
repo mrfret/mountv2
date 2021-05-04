@@ -17,12 +17,4 @@ for i in ${folder}; do
 done
 
 log "-> Setting Permissions || done <-"
-
-#find /app -exec chmod a=rx,u+w {} \;
-#find /app -exec chown -hR abc:abc {} \;
-#mkdir -p /var/lib/nginx/logs/
-#if [[ $(command -v rclone | wc -l) == "1" ]]; then
-#    chown -cf abc:abc /root
-#fi
-#log "-> Setting Permissions || done <-"
-#EOF
+#EOF'
