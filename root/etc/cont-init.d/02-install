@@ -39,9 +39,9 @@ rm -rf /var/cache/apk/*
 
 #Migrate to rclone-union version
 rm -rf /etc/nginx/nginx.conf
-folder="/config/check /config/discord /config/logs /config/rc-purge /config/rc-refresh /config/rclone /config/scripts"
+folder="check discord logs rc-purge rc-refresh rclone scripts"
 for i in ${folder};do
-    rm -rf $i 1>/dev/null 2>&1
+    rm -rf /config/$i 1>/dev/null 2>&1
 done
 
 pids="$(pgrep 'nginx')"

@@ -71,7 +71,7 @@ fi
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
 rm -rf /tmp/mergerfs_mount_file && touch /tmp/mergerfs_mount_file
-echo -e "allow_other,rw,statfs_ignore=nc,async_read=false,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true,nonempty,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
+echo -e "allow_other,rw,async_read=false,use_ino,func.getattr=newest,category.action=all,category.create=ff,cache.files=partial,dropcacheonclose=true,nonempty,minfreespace=0,fsname=mergerfs" >> /tmp/mergerfs_mount_file
 MGFS=$(cat /tmp/mergerfs_mount_file)
 mergerfs -o ${MGFS} ${UFSPATH} /mnt/unionfs
 sleep 5
