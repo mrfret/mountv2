@@ -58,13 +58,11 @@ chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
 config=/config/rclone/rclone-docker.conf
 ##### RUN MOUNT #####
-if [ ! -d "/mnt/remotes" ]; then     
-   mkdir -p /mnt/remotes && mkdir -p ${TMPRCLONE}
-   chown -hR abc:abc /mnt/remotes && chown -hR abc:abc ${TMPRCLONE}
-   chmod -R 775 /mnt/remotes && chmod -R 775 ${TMPRCLONE}
-fi
-rm -rf ${SMOUNT}/union-mount.sh \
-       ${SRC}/union-rc-file.sh 
+if [[ ! -d ${TMPRCLONE} ]];then mkdir -p ${TMPRCLONE} && chown -hR abc:abc ${TMPRCLONE}  && chmod -R 775 ${TMPRCLONE};fi
+if [[ ! -d "/mnt/remotes" ]];then mkdir -p /mnt/remotes && chown -hR abc:abc /mnt/remotes && chmod -R 775 /mnt/remotes;fi
+if [[ ! -d "/mnt/unionfs" ]];then mkdir -p ${SUNION} && chown -hR abc:abc ${SUNION} && chmod -R 775 ${SUNION};fi
+if [[ -f ${SMOUNT}/union-mount.sh ]];then rm -rf ${SMOUNT}/union-mount.sh;fi
+if [[ -f ${SRC}/union-rc-file.sh ]];then rm -rf ${SRC}/union-rc-file.sh;fi
 truncate -s 0 /config/logs/**.log >> /dev/null
 ddaylic=$(date +"%Y")
 dday=$(date)
@@ -87,7 +85,7 @@ rclone mount remote: /mnt/remotes \\
     --cache-dir=${TMPRCLONE} \\
     --tpslimit=${TPSLIMIT} --tpslimit-burst=${TPSBURST} \\
     --no-modtime --no-seek \\ 
-    --ignore-errors --poll-interval=${POLL_INTERVAL} \\
+    --poll-interval=${POLL_INTERVAL} \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
     --buffer-size=${BUFFER_SIZE} \\

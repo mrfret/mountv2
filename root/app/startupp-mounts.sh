@@ -62,8 +62,9 @@ for mount in ${POINTS};do
     command=$(mountpoint -q $mount && echo true || echo false)
     if [[ $command == "false" ]];then fusermount -uzq $mount;fi
 done
-if [[ -f "${SMOUNT}/union-mount.sh" ]];then
-   bash ${SMOUNT}/union-mount.sh
+if [[ ! -d "/mnt/unionfs" ]];then mkdir -p /mnt/unionfs;fi
+if [[ -f "/config/scripts/union-mount.sh" ]];then
+   bash /config/scripts/union-mount.sh
 fi
 sleep 5
 UFSPATH=$(cat /tmp/rclone-mount.file)
@@ -75,7 +76,7 @@ sleep 5
 #### CHECK DOCKER.SOCK ####
 dockersock=$(curl --silent --output /dev/null --show-error --fail --unix-socket /var/run/docker.sock http://localhost/images/json)
 #### RESTART DOCKER #### 
-if [[ "${dockersock}" != '' ]]; then
+if [[ "${dockersock}" != '' ]];then
    sleep 1
    logdocker " [ WARNING ] SOME APPS NEED A RESTART [ WARNING ]"
    logdocker "   SAMPLE :"
