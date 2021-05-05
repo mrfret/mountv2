@@ -15,7 +15,7 @@ if [[ ! -f "/config/rclone.conf" ]];then
    log "-->> [ WARNING ] ------------------------- [ WARNING ] <<--"
    sleep 3 && continue
 else
-   mkdir -p /config/{rclone,logs,env,scripts && sleep 1 && break
+   mkdir -p /config/{rclone,logs,env,scripts} && sleep 1 && break
 fi
 done
 log "-> Setting Folder Creating || start <-"
