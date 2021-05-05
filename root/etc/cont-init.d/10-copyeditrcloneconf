@@ -18,10 +18,13 @@ else
    sleep 1 && break
 fi
 done
-folder="logs rc-refresh scripts rclone"
-for i in ${folder};do
-   mkdir -p /config/$i 1>/dev/null 2>&1
-done
+
+mkdir -p /config
+mkdir -p /config/logs \
+         /config/rc-refresh \
+         /config/scripts \
+         /config/rclone
+         
 
 log "-> Copying rclone.conf <-"
     find /config -name "rclone.conf" -type f -exec cp {} /config/rclone/rclone-docker.conf \;
