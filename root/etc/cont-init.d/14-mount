@@ -64,42 +64,43 @@ if [[ ! -d "/mnt/unionfs" ]];then mkdir -p ${SUNION} && chown -hR abc:abc ${SUNI
 if [[ -f ${SMOUNT}/union-mount.sh ]];then rm -rf ${SMOUNT}/union-mount.sh;fi
 if [[ -f ${SRC}/union-rc-file.sh ]];then rm -rf ${SRC}/union-rc-file.sh;fi
 truncate -s 0 /config/logs/**.log >> /dev/null
-ddaylic=$(date +"%Y")
-dday=$(date)
 echo -n "/mnt/downloads=RW:/mnt/remotes=NC" >>/tmp/rclone-mount.file
-cat <<'EOF' >${SMOUNT}/union-mount.sh
-"#!/usr/bin/with-contenv bash
+cat <<'EOF' > ${SMOUNT}/union-mount.sh
+#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
-# Copyright (c) ${ddaylic}, MrDoob ##
+# Copyright (c) 2021, MrDoob ##
 # rclone mount for union over-shell-exec-command ##
-# create day = ${dday}
 # All rights reserved. ##
 ##########################
-#\n
-rclone mount remote: /mnt/remotes \\
-    --config=${config} \\
-    --log-file=/config/logs/rclone-union.log \\
-    --log-level=${LOGLEVEL} \\
-    --uid=${PUID} --gid=${PGID} --umask=${UMASK} \\
-    --allow-other --allow-non-empty \\
-    --timeout=1h --use-mmap \\
-    --cache-dir=${TMPRCLONE} \\
-    --tpslimit=${TPSLIMIT} --tpslimit-burst=${TPSBURST} \\
-    --no-modtime --no-seek \\
-    --ignore-errors --poll-interval=${POLL_INTERVAL} \\
-    --user-agent=${UAGENT} --no-checksum \\
-    --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
-    --buffer-size=${BUFFER_SIZE} \\
-    --dir-cache-time=${DIR_CACHE_TIME} \\
-    --cache-info-age=${CACHE_INFO_AGE} \\
-    --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \\
-    --vfs-cache-mode=${VFS_CACHE_MODE} \\
-    --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \\
-    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
-    --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
-    --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --rc --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD} \\
-    --rc-addr=localhost:${RC_ADDRESS} --daemon \n" >> ${SMOUNT}/union-mount.sh
+
+source /config/env/rclone.env
+
+rclone mount remote: /mnt/remotes \
+    --config=${config} \
+    --log-file=/config/logs/rclone-union.log \
+    --log-level=${LOGLEVEL} \
+    --uid=${PUID} --gid=${PGID} --umask=${UMASK} \
+    --allow-other --allow-non-empty \
+    --timeout=1h --use-mmap \
+    --cache-dir=${TMPRCLONE} \
+    --tpslimit=${TPSLIMIT} --tpslimit-burst=${TPSBURST} \
+    --no-modtime --no-seek \
+    --ignore-errors --poll-interval=${POLL_INTERVAL} \
+    --user-agent=${UAGENT} --no-checksum \
+    --drive-chunk-size=${DRIVE_CHUNK_SIZE} \
+    --buffer-size=${BUFFER_SIZE} \
+    --dir-cache-time=${DIR_CACHE_TIME} \
+    --cache-info-age=${CACHE_INFO_AGE} \
+    --vfs-cache-poll-interval=${VFS_CACHE_POLL_INTERVAL} \
+    --vfs-cache-mode=${VFS_CACHE_MODE} \
+    --vfs-cache-max-age=${VFS_CACHE_MAX_AGE} \
+    --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \
+    --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \
+    --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \
+    --rc --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD} \
+    --rc-addr=localhost:${RC_ADDRESS} --daemon
+###EOF
+EOF
 ## rclone union
 value=/tmp/rcunion.union
 if [[ -f ${value} ]];then rm ${value}; fi
