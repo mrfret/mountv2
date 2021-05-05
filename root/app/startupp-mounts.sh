@@ -57,7 +57,7 @@ SRC=/config/rc-refresh
 IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
-POINTS="/mnt/unionfs /mnt/remotes ${TMPRCLONE}"
+POINTS="/mnt/unionfs /mnt/remotes"
 for mount in ${POINTS};do
     command=$(mountpoint -q $mount && echo true || echo false)
     if [[ $command == "false" ]];then fusermount -uzq $mount;fi

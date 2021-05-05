@@ -67,7 +67,8 @@ truncate -s 0 /config/logs/**.log >> /dev/null
 ddaylic=$(date +"%Y")
 dday=$(date)
 echo -n "/mnt/downloads=RW:/mnt/remotes=NC" >>/tmp/rclone-mount.file
-echo -e "#!/usr/bin/with-contenv bash
+cat <<'EOF' >${SMOUNT}/union-mount.sh
+"#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
 # Copyright (c) ${ddaylic}, MrDoob ##
 # rclone mount for union over-shell-exec-command ##
@@ -84,8 +85,8 @@ rclone mount remote: /mnt/remotes \\
     --timeout=1h --use-mmap \\
     --cache-dir=${TMPRCLONE} \\
     --tpslimit=${TPSLIMIT} --tpslimit-burst=${TPSBURST} \\
-    --no-modtime --no-seek \\ 
-    --poll-interval=${POLL_INTERVAL} \\
+    --no-modtime --no-seek \\
+    --ignore-errors --poll-interval=${POLL_INTERVAL} \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\
     --buffer-size=${BUFFER_SIZE} \\
@@ -97,8 +98,8 @@ rclone mount remote: /mnt/remotes \\
     --vfs-cache-max-size=${VFS_CACHE_MAX_SIZE} \\
     --vfs-read-chunk-size-limit=${VFS_READ_CHUNK_SIZE_LIMIT} \\
     --vfs-read-chunk-size=${VFS_READ_CHUNK_SIZE} \\
-    --rc --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD} --rc-addr=localhost:${RC_ADDRESS} \\
-    --daemon \n" >> ${SMOUNT}/union-mount.sh
+    --rc --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD} \\
+    --rc-addr=localhost:${RC_ADDRESS} --daemon \n" >> ${SMOUNT}/union-mount.sh
 ## rclone union
 value=/tmp/rcunion.union
 if [[ -f ${value} ]];then rm ${value}; fi

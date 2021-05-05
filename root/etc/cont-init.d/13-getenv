@@ -21,7 +21,7 @@ else
 fi
 RC_PASSWORD=${RC_PASSWORD:-null}
 if [[ ${RC_PASSWORD} == 'null' ]];then
-   RC_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 32 | head -n 1)
+   RC_PASSWORD=$(cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w 8 | head -n 1)
 else
    RC_PASSWORD=${RC_PASSWORD}
 fi
