@@ -18,9 +18,9 @@ else
    sleep 1 && break
 fi
 done
-folder="/config /config/logs /config/rc-refresh /config/rclone /config/scripts"
+folder="logs rc-refresh scripts rclone"
 for i in ${folder};do
-   mkdir $i 1>/dev/null 2>&1
+   mkdir -p /config/$i 1>/dev/null 2>&1
 done
 
 log "-> Copying rclone.conf <-"
