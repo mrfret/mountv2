@@ -58,8 +58,9 @@ IFS=$'\n'
 filter="$1"
 config=/config/rclone/rclone-docker.conf
 POINTS="/mnt/unionfs /mnt/remotes ${TMPRCLONE}"
-for mount in $POINTS;do
-    if [[ ! mountpoint -q $mount ]];then fusermount -uzq $mount;fi
+for mount in ${POINTS};do
+    command=$(mountpoint -q $mount && echo true || echo false)
+    if [[ $command == "false" ]];then fusermount -uzq $mount;fi
 done
 if [[ -f "${SMOUNT}/union-mount.sh" ]];then
    bash ${SMOUNT}/union-mount.sh
