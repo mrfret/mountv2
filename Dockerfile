@@ -3,7 +3,7 @@
 # started from Zero                                  #
 # Docker owned from doob187                          #
 ######################################################
-FROM ghcr.io/linuxserver/baseimage-alpine:3.12-version-3e3be7bf
+FROM ghcr.io/linuxserver/baseimage-alpine:3.13-version-9b18d773
 LABEL maintainer=doob187
 LABEL org.opencontainers.image.source https://github.com/doob187/mountv2
 
