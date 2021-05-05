@@ -72,8 +72,10 @@ cat <<'EOF' > ${SMOUNT}/union-mount.sh
 # rclone mount for union over-shell-exec-command ##
 # All rights reserved. ##
 ##########################
-
+# environment
 source /config/env/rclone.env
+config=/config/rclone/rclone-docker.conf
+# rclone command
 
 rclone mount remote: /mnt/remotes \
     --config=${config} \
@@ -124,8 +126,10 @@ cat <<'EOF' > ${SRC}/union-rc-file.sh
 # rclone rc vfs/refresh for union over-shell-exec-command ##
 # All rights reserved. ##
 ##########################
-
+# environment
 source /config/env/rclone.env
+config=/config/rclone/rclone-docker.conf
+# rclone command
 
 rclone rc vfs/refresh recursive=true \
        --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD}  \
