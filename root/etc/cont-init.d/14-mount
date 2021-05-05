@@ -49,12 +49,11 @@ SMOUNT=/config/scripts
 SRC=/config/rc-refresh
 SDOWN=/mnt/downloads
 SUNION=/mnt/unionfs
-SCACHE=${TMPRCLONE}
+TMPRCLONE=${TMPRCLONE}
 LOGS=/config/logs
-rm -rf ${LOGS} && mkdir -p ${LOGS} && chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
-rm -rf ${SRC} && mkdir -p ${SRC} && chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
-rm -rf ${SCACHE}/** && mkdir -p ${SCACHE} && chown -hR abc:abc ${SCACHE} && chmod -R 775 ${SCACHE}
-mkdir -p ${SMOUNT} && chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
+chown -hR abc:abc ${LOGS} && chmod -R 775 ${LOGS}
+chown -hR abc:abc ${SRC} && chmod -R 775 ${SRC}
+chown -hR abc:abc ${SMOUNT} && chmod -R 775 ${SMOUNT}
 ##### FOLDER END #####
 rm -rf /tmp/rclone-mount.file && touch /tmp/rclone-mount.file
 config=/config/rclone/rclone-docker.conf
@@ -64,12 +63,8 @@ if [ ! -d "/mnt/remotes" ]; then
    chown -hR abc:abc /mnt/remotes && chown -hR abc:abc ${TMPRCLONE}
    chmod -R 775 /mnt/remotes && chmod -R 775 ${TMPRCLONE}
 fi
-remotes=$(mountpoint -q /mnt/remotes && echo true || echo false)
-if [[ ${remotes} == "false" ]];then fusermount -uzq /mnt/remotes;fi
 rm -rf ${SMOUNT}/union-mount.sh \
        ${SRC}/union-rc-file.sh 
-touch /config/logs/rclone-union.log
-mkdir -p /config/logs/ && chmod -R 775 /config/logs/ && chown -hR abc:abc /config/logs/
 truncate -s 0 /config/logs/**.log >> /dev/null
 ddaylic=$(date +"%Y")
 dday=$(date)
@@ -92,6 +87,7 @@ rclone mount remote: /mnt/remotes \\
     --cache-dir=${TMPRCLONE} \\
     --tpslimit=${TPSLIMIT} --tpslimit-burst=${TPSBURST} \\
     --no-modtime --no-seek \\ 
+    --drive-acknowledge-abuse \\
     --ignore-errors --poll-interval=${POLL_INTERVAL} \\
     --user-agent=${UAGENT} --no-checksum \\
     --drive-chunk-size=${DRIVE_CHUNK_SIZE} \\

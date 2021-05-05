@@ -5,10 +5,11 @@
 function log() {
 echo "[Mount] ${1}"
 }
-log "-> update packages || start <-" 
-apk --no-cache update --quiet 
-apk --no-cache upgrade --quiet
-apk --no-cache fix --quiet
+log "-> update packages || start <-"
+update="update upgrade fix"
+for up2 in ${update};do
+   apk --quiet --no-cache --no-progress $up2
+done
 apk del --quiet --clean-protected --no-progress
 echo "@weekly bash /app/update-alpine/update-alpine.sh" > /tmp/crontab.conf
 crontab /tmp/crontab.conf

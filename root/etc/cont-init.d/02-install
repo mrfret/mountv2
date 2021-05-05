@@ -5,43 +5,39 @@
 function log() {
 echo "[MOUNT] ${1}"
 }
+log "**** update system ****" 
+update="update upgrade fix"
+for up2 in ${update};do
+   apk --quiet --no-cache --no-progress $up2
+done
+log "**** install build packages ****"
+inst="wget bc curl unzip shadow linux-headers musl fuse ca-certificates logrotate shadow findutils coreutils openssl libxml2-utils tzdata openntpd grep"
+for dep in ${inst};do
+   apk add --quiet --no-cache --no-progress $dep
+done
+apk del --quiet --no-cache nginx
+rm -rf /var/cache/apk/*
+rm -rf /etc/nginx/nginx.conf
 
+pids="$(pgrep 'nginx')"
+if [ "$pids" != "" ]; then
+  kill -15 $pids
+fi
 addgroup -g 911 abc 1>/dev/null 2>&1
 adduser -u 911 -D -G abc abc 1>/dev/null 2>&1
-apk add --quiet --no-cache --no-progress wget curl bash unzip fuse
 log "-> Configure RCLONE || start <- [RCLONE]"
 log "-> please hold the line ...... <- [MOUNT]"
+mkdir -p /config/{rclone,logs,env,scripts}
 
 wget https://downloads.rclone.org/rclone-current-linux-amd64.zip -qO rclone.zip && \
 unzip -q rclone.zip && \
 rm -f rclone.zip && \
 mv rclone-*-linux-amd64/rclone /usr/bin/ && \
 rm -rf rclone-**
-
 chown abc:abc /usr/bin/rclone 1>/dev/null 2>&1
 chmod 755 /usr/bin/rclone 1>/dev/null 2>&1
 rm -rf /tmp/rclone** 1>/dev/null 2>&1
 log "-> Yippee-ki-yay, motherfucker! it's done <- [MOUNT]"
 log "-> Installed rclone Version $(rclone --version | awk '{print $2}' | head -n 1 | sed -e 's/v//g' | cut -c1-6) <- [MOUNT]"
-
-log "**** update system ****" 
-apk --quiet --no-cache --no-progress update
-log "**** install build packages ****"
-apk add --quiet --no-cache --no-progress \
-    ca-certificates logrotate shadow bash bc findutils coreutils openssl \
-    curl libxml2-utils tzdata openntpd grep tar musl fuse
-log "**** upgrade system ****"
-apk --quiet --no-cache --no-progress upgrade
-apk --quiet --no-progress --no-cache fix
-apk del --quiet --clean-protected --no-progress
-apk del --quiet --no-cache nginx
-rm -rf /var/cache/apk/*
-
-#Migrate to rclone-union version
-rm -rf /etc/nginx/nginx.conf
-pids="$(pgrep 'nginx')"
-if [ "$pids" != "" ]; then
-  kill -15 $pids
-fi
 
 #EOF#
