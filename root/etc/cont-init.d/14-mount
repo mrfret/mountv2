@@ -117,21 +117,24 @@ for i in ${mapped[@]}; do
    rclone config create remote union upstreams $i search_policy 'all' --config=${config}
 done
 ##vfs-refresh
-echo -e "#!/usr/bin/with-contenv bash
+cat <<'EOF' > ${SRC}/union-rc-file.sh
+#!/usr/bin/with-contenv bash
 # shellcheck shell=bash ##
-# Copyright (c) ${ddaylic}, MrDoob ##
+# Copyright (c) 2021, MrDoob ##
 # rclone rc vfs/refresh for union over-shell-exec-command ##
-# create day = ${dday}
 # All rights reserved. ##
 ##########################
-#\n
-rclone rc vfs/refresh recursive=true \\
-       --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD}  \\
-       --rc-addr=localhost:${RC_ADDRESS} \\
-       --config=${config} \\
-       --log-file=/config/logs/rc-refresh-union.log \\
-       --log-level=${LOGLEVEL_RC} \n
-#<EOF>#" >> ${SRC}/union-rc-file.sh
+
+source /config/env/rclone.env
+
+rclone rc vfs/refresh recursive=true \
+       --rc-user=${RC_USER} --rc-pass=${RC_PASSWORD}  \
+       --rc-addr=localhost:${RC_ADDRESS} \
+       --config=${config} \
+       --log-file=/config/logs/rc-refresh-union.log \
+       --log-level=${LOGLEVEL_RC}
+###EOF
+EOF
     chmod a+x ${SRC}/union-rc-file.sh && chown -hR abc:abc ${SRC}/union-rc-file.sh
     chown -hR abc:abc /mnt/rclone_cache
     log "-->> rclone rc refresh file created for union <<--"
