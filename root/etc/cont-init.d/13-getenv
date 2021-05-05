@@ -3,11 +3,11 @@
 # Copyright (c) 2020, MrDoob
 # All rights reserved.
 config=/config/rclone/rclone-docker.conf
-drivespace=$(df -BG /mnt --local | tail -n +2 | awk '{print $4}')
+drivespace=$(df -BG /mnt --local | tail -n +2 | awk '{print $4}'| sed -e 's/G//g')
 checkspace=$(echo $(( ( ${drivespace} ) /4 | bc )) | sed -r 's/([^0-9]*([0-9]*)){1}.*/\2/')
 VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE:-null}
 if [[ ${VFS_CACHE_MAX_SIZE} == 'null' ]]; then
-   VFS_CACHE_MAX_SIZE=${checkspace}
+   VFS_CACHE_MAX_SIZE=${checkspace}G
 else
    VFS_CACHE_MAX_SIZE=${VFS_CACHE_MAX_SIZE}
    sed -i "s#VFS_CACHE_MAX_SIZE=G#VFS_CACHE_MAX_SIZE=50G#g" /config/env/rclone.env
