@@ -139,7 +139,7 @@ rclone rc vfs/refresh recursive=true \
        --log-level=${LOGLEVEL_RC}
 ###EOF
 EOF
-    chmod a+x ${SRC}/union-rc-file.sh && chown -hR abc:abc ${SRC}/union-rc-file.sh
-    chown -hR abc:abc /mnt/rclone_cache
-    log "-->> rclone rc refresh file created for union <<--"
+chmod a+x ${SRC}/union-rc-file.sh && chown -hR abc:abc ${SRC}/union-rc-file.sh
+chown -hR abc:abc ${TMPRCLONE}
+log "-->> rclone rc refresh file created for union <<--"
 #EOF#
