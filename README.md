@@ -12,6 +12,9 @@
 
 # V3 is beta stage now
 
+---
+
+## SUPPORT FOR PG | PTS WILL ENDED IN 2 WEEKS 
 
 ---
 ## This BRANCHE USED RCLONE_UNION 
