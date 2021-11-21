@@ -5,7 +5,7 @@
 ######################################################
 FROM ghcr.io/linuxserver/baseimage-alpine:3.13-version-9b18d773
 LABEL maintainer=doob187
-LABEL org.opencontainers.image.source https://github.com/doob187/mountv2
+LABEL org.opencontainers.image.source https://github.com/mrfret/mountv2
 
 RUN \
   echo "**** install build packages ****" && \

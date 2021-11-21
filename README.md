@@ -13,15 +13,11 @@
 # V3 is beta stage now
 
 ---
-
-## SUPPORT FOR PG | PTS WILL ENDED IN 2 WEEKS 
-
----
 ## This BRANCHE USED RCLONE_UNION 
 
 THE ENV WILL BE OVERWRITEN !!!
 
-new rclone.env ( old once will be removed and replace )
+new rclone.env ( old one will be removed and replaced )
 
 ```sh
 <<-
@@ -105,16 +101,7 @@ Docker PRE-CONFIG
    RC_PASSWORD                       ${RC_PASSWORD} - ( will random generated )
 
 ```
----
 
-## You need Help 
-
-```
-https://discord.gg/A7h7bKBCVa
-```
-Or create one issue 
-```
-https://github.com/doob187/mountv2/issues
 ```
 
 ----
